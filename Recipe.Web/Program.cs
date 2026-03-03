@@ -14,12 +14,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("RecipeDb")));
 
 // ASP.NET Core Identity
-builder.Services.AddIdentity<ApplicationUser, Microsoft.AspNetCore.Identity.IdentityRole>(options =>
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
     })
+    .AddRoles<Microsoft.AspNetCore.Identity.IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
+    .AddDefaultTokenProviders()
+    .AddDefaultUI();
 
 // MediatR — auto-register handlers from this assembly
 builder.Services.AddMediatR(cfg =>

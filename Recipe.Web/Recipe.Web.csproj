@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0-preview.3.25172.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.0-preview.3.25172.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0-preview.3.25171.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0-preview.3.25171.6">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -35,7 +35,22 @@
 - EF Core DbContext injected into handlers directly (or via repository if needed)
 - Validation: use FluentValidation pipeline behaviors or inline handler validation
 
-## Learnings
+## Session: Identity UI Package + Login/Register/Logout Pages
+
+**Date:** 2026-03-03
+
+### What Was Done
+
+1. **Added `Microsoft.AspNetCore.Identity.UI` package** (version `10.0.0-preview.3.25172.1`) to `Recipe.Web.csproj` — matches the preview version pattern of other Identity packages.
+
+2. **Updated Program.cs** — changed from `AddIdentity<ApplicationUser, IdentityRole>()` to `AddDefaultIdentity<ApplicationUser>().AddRoles<IdentityRole>().AddDefaultUI()`. This enables the built-in Identity UI scaffold at `/Identity/Account/...`.
+
+3. **Existing `.cshtml.cs` code-behind files confirmed** — `Login.cshtml.cs`, `Register.cshtml.cs`, and `Logout.cshtml.cs` already existed in `Pages/Account/` (previously created but unlinked). The build errors were from a stale cache after swapping the Identity setup; after restore + rebuild all compiled cleanly.
+
+### What Worked
+- `AddDefaultIdentity` + `AddRoles` + `AddDefaultUI()` chain compiles correctly and preserves role support.
+- Custom pages at `/Account/Login`, `/Account/Register`, `/Account/Logout` use their own `PageModel` code-behind files; they coexist with `AddDefaultUI()` which serves Identity pages at the `/Identity/Account/...` area route.
+- Build: **0 errors, 1 warning** (unrelated NuGet vulnerability in `Microsoft.Build.Tasks.Core`).
 
 ## Session: Initial Backend Implementation
 

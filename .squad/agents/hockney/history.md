@@ -53,6 +53,30 @@
 
 ## Learnings
 
+### 2026-03-03 — Custom Identity Pages (Login, Register, Logout)
+
+**What I Built:**
+- Manually scaffolded ASP.NET Core Identity Razor Pages under `Pages/Account/`:
+  - `Login.cshtml` + `Login.cshtml.cs` — Email/password sign-in form with RememberMe
+  - `Register.cshtml` + `Register.cshtml.cs` — Registration form with confirm password
+  - `Logout.cshtml` + `Logout.cshtml.cs` — POST-only sign out, GET redirects home
+
+**Key Decisions:**
+- PageModels are **not** thin (no MediatR) — Identity auth is infrastructure, not app domain logic; `SignInManager`/`UserManager` injected directly
+- `_LoginPartial.cshtml` updated to point to custom `/Account/Login`, `/Account/Register`, `/Account/Logout` (removed `asp-area="Identity"`)
+- `_Layout.cshtml` updated: "My Cookbooks" nav link is now auth-conditional (only visible when signed in)
+- `_ValidationScriptsPartial.cshtml` already existed — no duplicate created
+- Removed `text-light` classes from nav links (Materia theme uses light navbar)
+
+**File Locations:**
+```
+Pages/Account/Login.cshtml + .cs
+Pages/Account/Register.cshtml + .cs
+Pages/Account/Logout.cshtml + .cs
+Pages/Shared/_LoginPartial.cshtml  (updated)
+Pages/Shared/_Layout.cshtml        (updated — conditional My Cookbooks)
+```
+
 ### 2026-01-XX — Full Razor Markup Implementation
 
 **What I Built:**

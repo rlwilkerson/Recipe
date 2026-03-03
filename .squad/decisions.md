@@ -66,3 +66,28 @@ _Append-only. Managed by Scribe. Agents write to `.squad/decisions/inbox/` — S
 - **100% pass:** All service and handler tests compile and pass; Authorization tests are documented placeholders pending implementation
 - **Playwright stubs:** 9 skipped tests with meaningful messages; ready for app runtime
 - **Infrastructure:** In-memory EF Core, NSubstitute mocking; DbContextHelper utility created
+
+---
+
+## Fenster: Switch to AddDefaultIdentity + AddDefaultUI
+**Date:** 2026-03-03  
+**Source:** fenster-identity-ui.md  
+**Content:**
+- Switched from `AddIdentity<ApplicationUser, IdentityRole>()` to `AddDefaultIdentity<ApplicationUser>().AddRoles<IdentityRole>().AddDefaultUI()`
+- Added `Microsoft.AspNetCore.Identity.UI` (v10.0.0-preview.3.25172.1)
+- Enables built-in Identity scaffold while preserving role support
+- Custom pages at `/Account/` coexist with Identity UI area pages; no conflicts
+- Build clean: 0 errors
+
+---
+
+## Hockney: Custom Identity Pages (No Identity Area Scaffolding)
+**Date:** 2026-03-03  
+**Source:** hockney-identity-pages.md  
+**Content:**
+- Custom Login, Register, Logout Razor Pages created under `Pages/Account/` (not `Areas/Identity/`)
+- Avoids area overhead; aligns with app structure
+- PageModels for auth pages inject `SignInManager`/`UserManager` directly (Identity is infrastructure, not MediatR domain)
+- Updated `_LoginPartial.cshtml` to reference custom pages
+- Updated `_Layout.cshtml` with auth-conditional "My Cookbooks" link
+- Build clean: 0 errors
