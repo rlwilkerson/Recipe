@@ -107,3 +107,14 @@
 - Ingredients/Instructions parsing from newline-delimited strings
 - Copy link to clipboard (JS-only, progressive enhancement)
 - Share modals (stubbed for future implementation)
+
+### 2026-03-04 — Bootswatch Materia Theme Applied
+**What I Changed:**
+- Applied Bootswatch Materia theme (Material Design-inspired Bootstrap 5 theme)
+- **CDN URL:** `https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/materia/bootstrap.min.css`
+- Updated navbar from `navbar-dark bg-dark border-bottom` to `navbar-light bg-white shadow-sm` to complement the Materia theme's light, clean aesthetic
+- Kept Bootstrap JS bundle and HTMX CDN links unchanged (Bootswatch only replaces CSS)
+- Verified site.css has no dark theme overrides that clash with Materia's light palette
+- Scanned all .cshtml files — only navbar had dark classes, now updated
+
+**Theme Colors:** Primary blue (#2196F3), clean white backgrounds, subtle shadows, Material Design typography
