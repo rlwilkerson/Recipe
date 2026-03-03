@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Recipe.Web.Features.Recipes.CreateRecipe;
 using Recipe.Web.Features.Recipes.EditRecipe;
 using Recipe.Web.Features.Recipes.GetRecipe;
 using System.Security.Claims;
@@ -71,6 +72,26 @@ public class DetailsModel : PageModel
             EditPrepTime, EditCookTime, EditServings, userId));
         // HTMX redirect to updated URL
         Response.Headers["HX-Redirect"] = $"/recipes/{result.PublicId}/{result.NewSlug}";
+        return new OkResult();
+    }
+
+    public async Task<IActionResult> OnGetCloneFormAsync()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        Result = await _mediator.Send(new GetRecipeQuery(PublicId, userId));
+        if (Result is null)
+            return NotFound();
+        return Partial("_RecipeCloneForm", Result);
+    }
+
+    public async Task<IActionResult> OnPostSaveCloneAsync()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var result = await _mediator.Send(new CreateRecipeCommand(
+            EditTitle!, EditDescription,
+            EditIngredients, EditInstructions,
+            EditPrepTime, EditCookTime, EditServings, userId));
+        Response.Headers["HX-Redirect"] = $"/recipes/{result.PublicId}/{result.Slug}";
         return new OkResult();
     }
 }

@@ -1,0 +1,70 @@
+@model Recipe.Web.Features.Recipes.GetRecipe.GetRecipeResponse
+
+<div id="recipe-content">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="mb-0">Clone Recipe</h2>
+        </div>
+        <div class="card-body">
+            <form hx-post="?handler=SaveClone">
+                @Html.AntiForgeryToken()
+                
+                <div class="mb-3">
+                    <label for="editTitle" class="form-label">Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="editTitle" name="EditTitle"
+                           required maxlength="200" value="@(Model?.Title + " [Copy]")">
+                </div>
+
+                <div class="mb-3">
+                    <label for="editDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="editDescription" name="EditDescription"
+                              rows="2" maxlength="1000">@Model?.Description</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="editIngredients" class="form-label">Ingredients</label>
+                    <textarea class="form-control" id="editIngredients" name="EditIngredients"
+                              rows="5" maxlength="5000">@Model?.Ingredients</textarea>
+                    <div class="form-text">One ingredient per line</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="editInstructions" class="form-label">Instructions</label>
+                    <textarea class="form-control" id="editInstructions" name="EditInstructions"
+                              rows="6" maxlength="10000">@Model?.Instructions</textarea>
+                    <div class="form-text">One step per line</div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-4">
+                        <label for="editPrepTime" class="form-label">Prep Time (min)</label>
+                        <input type="number" class="form-control" id="editPrepTime" name="EditPrepTime"
+                               min="0" max="9999" value="@Model?.PrepTime">
+                    </div>
+                    <div class="col-4">
+                        <label for="editCookTime" class="form-label">Cook Time (min)</label>
+                        <input type="number" class="form-control" id="editCookTime" name="EditCookTime"
+                               min="0" max="9999" value="@Model?.CookTime">
+                    </div>
+                    <div class="col-4">
+                        <label for="editServings" class="form-label">Servings</label>
+                        <input type="number" class="form-control" id="editServings" name="EditServings"
+                               min="1" max="999" value="@Model?.Servings">
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-files"></i> Create Copy
+                    </button>
+                    <button type="button" class="btn btn-secondary"
+                            hx-get="?handler=ViewContent"
+                            hx-target="#recipe-content"
+                            hx-swap="outerHTML">
+                        <i class="bi bi-x-lg"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -251,3 +251,32 @@ Hockney has updated `_RecipeList.cshtml` recipe cards to display description (2-
 
 Both changes merged and integrated successfully.
 
+### Session: Clone Recipe Handlers
+
+**Date:** 2026-03-04
+
+#### What Was Done
+
+Added clone recipe support to `Recipe.Web/Pages/Recipes/Details.cshtml.cs`:
+
+1. **Added using statement** — `using Recipe.Web.Features.Recipes.CreateRecipe;` to import CreateRecipeCommand
+
+2. **Added `OnGetCloneFormAsync()` handler:**
+   - Fetches recipe using `GetRecipeQuery(PublicId, userId)`
+   - Returns `NotFound()` if recipe is null
+   - Returns `Partial("_RecipeCloneForm", Result)` passing the recipe data to pre-populate clone form
+
+3. **Added `OnPostSaveCloneAsync()` handler:**
+   - Extracts `userId` from ClaimsPrincipal
+   - Sends `CreateRecipeCommand` using the existing `Edit*` BindProperty fields (EditTitle, EditDescription, EditIngredients, EditInstructions, EditPrepTime, EditCookTime, EditServings)
+   - Sets `HX-Redirect` header to navigate to the newly created recipe: `$"/recipes/{result.PublicId}/{result.Slug}"`
+   - Returns `OkResult()` for HTMX to process redirect
+
+#### Key Patterns
+
+**BindProperty Reuse:** The clone form reuses the same `Edit*` BindProperty fields already defined for editing, since both forms use identical field names. No new properties needed.
+
+**HTMX Redirect Pattern:** After successful clone creation, set `Response.Headers["HX-Redirect"]` before returning `OkResult()`. This allows HTMX to navigate to the new recipe URL (which has a different publicId than the source).
+
+**No Authorization Check on Clone Form:** `OnGetCloneFormAsync()` doesn't check `IsOwner` because any authenticated user who can view a recipe should be able to clone it (creates their own copy). The handler only checks if the recipe exists.
+

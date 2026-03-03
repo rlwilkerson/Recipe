@@ -276,3 +276,36 @@ Updated `_RecipeList.cshtml` recipe cards to display:
 Both backend and frontend changes integrated and validated.
 
 
+
+### 2026-03-04 — Clone Recipe Edit-in-Place Pattern
+
+**What I Built:**
+- Created `_RecipeCloneForm.cshtml` partial — inline clone form using edit-in-place pattern (matching Edit Recipe UX)
+- Updated `_RecipeViewContent.cshtml` — replaced form POST Clone button with HTMX GET button
+
+**Clone Form Specifics:**
+- Model: `@model GetRecipeResponse` (same as edit form)
+- Outer wrapper: `<div id="recipe-content">` (required for outerHTML swap)
+- Card header: **"Clone Recipe"** (not "Edit Recipe")
+- Title field pre-filled with `@(Model?.Title + " [Copy]")` to append " [Copy]" suffix
+- All other fields (Description, Ingredients, Instructions, PrepTime, CookTime, Servings) pre-filled from Model
+- Form action: `hx-post="?handler=SaveClone"` (not `?handler=Edit`)
+- Submit button: **"Create Copy"** with `bi-files` icon (not "Save Changes")
+- Cancel button: `hx-get="?handler=ViewContent"` targeting `#recipe-content` with `outerHTML` swap (restores view)
+
+**Field Names:**
+All field names identical to `_RecipeEditForm.cshtml` (EditTitle, EditDescription, EditIngredients, EditInstructions, EditPrepTime, EditCookTime, EditServings) so existing BindProperty bindings work without backend changes.
+
+**HTMX Flow:**
+1. Clone button in `_RecipeViewContent`: `hx-get="?handler=CloneForm"` → loads clone form inline
+2. Cancel button in `_RecipeCloneForm`: `hx-get="?handler=ViewContent"` → restores original view
+3. Save button: `hx-post="?handler=SaveClone"` → Fenster will handle creation and redirect
+
+**Key Pattern:**
+Consistent with Edit Recipe and Add Recipe edit-in-place patterns — no modals, inline form replacement using HTMX outerHTML swapping on `#recipe-content` div.
+
+**File Locations:**
+```
+Recipe.Web/Pages/Recipes/_RecipeCloneForm.cshtml    (created)
+Recipe.Web/Pages/Recipes/_RecipeViewContent.cshtml  (updated — Clone button now HTMX)
+```
