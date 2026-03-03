@@ -1,5 +1,3 @@
-@page
-
 <div class="modal show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -11,6 +9,7 @@
                   hx-target="#cookbook-list"
                   hx-swap="outerHTML"
                   hx-on::after-request="if(event.detail.successful) closeModal()">
+                @Html.AntiForgeryToken()
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="cookbookName" class="form-label">Name <span class="text-danger">*</span></label>

@@ -48,6 +48,9 @@ CodeCoverage/
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
+# Playwright CLI artifacts (videos, traces, snapshots, logs)
+.playwright-cli/
+
 # NUnit
 *.VisualState.xml
 TestResult.xml

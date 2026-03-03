@@ -1,0 +1,41 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "Cookbook" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e6]:
+          - list [ref=e7]:
+            - listitem [ref=e8]:
+              - link "Home" [ref=e9] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e10]:
+              - link "My Cookbooks" [ref=e11] [cursor=pointer]:
+                - /url: /Cookbooks
+          - list [ref=e12]:
+            - listitem [ref=e13]:
+              - button "Sign Out (testuser@cookbook.test)" [ref=e15] [cursor=pointer]
+  - main [ref=e17]:
+    - generic [ref=e18]:
+      - heading "My Cookbooks" [level=1] [ref=e19]
+      - button "Create Cookbook" [active] [ref=e20] [cursor=pointer]: Create Cookbook
+    - paragraph [ref=e24]: No cookbooks yet. Create your first one!
+    - dialog [ref=e27]:
+      - document:
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - heading "Create New Cookbook" [level=5] [ref=e30]
+            - button "Close" [ref=e31] [cursor=pointer]
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - generic [ref=e35]: Name *
+                - textbox "Name *" [ref=e36]
+              - generic [ref=e37]:
+                - generic [ref=e38]: Description
+                - textbox "Description" [ref=e39]
+            - generic [ref=e40]:
+              - button "Cancel" [ref=e41] [cursor=pointer]
+              - button "Create Cookbook" [ref=e42] [cursor=pointer]
+  - contentinfo [ref=e25]:
+    - generic [ref=e26]: © 2026 - Cookbook

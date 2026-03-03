@@ -1,0 +1,25 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "Cookbook" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e6]:
+          - list [ref=e7]:
+            - listitem [ref=e8]:
+              - link "Home" [ref=e9] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e10]:
+              - link "My Cookbooks" [ref=e11] [cursor=pointer]:
+                - /url: /Cookbooks
+          - list [ref=e12]:
+            - listitem [ref=e13]:
+              - button "Sign Out (testuser@cookbook.test)" [ref=e15] [cursor=pointer]
+  - main [ref=e17]:
+    - generic [ref=e21]:
+      - heading "Welcome to Cookbook" [level=1] [ref=e22]
+      - paragraph [ref=e23]: Organize your recipes, create cookbooks, and share them with friends and family. Build your digital recipe collection and never lose track of your favorite dishes.
+      - link "Get Started" [ref=e24] [cursor=pointer]:
+        - /url: /Cookbooks
+  - contentinfo [ref=e25]:
+    - generic [ref=e26]: © 2026 - Cookbook
