@@ -1,0 +1,38 @@
+@model Recipe.Web.Features.Cookbooks.GetCookbook.GetCookbookResponse
+
+<div id="cookbook-header">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="mb-0">Edit Cookbook</h2>
+        </div>
+        <div class="card-body">
+            <form hx-post="?handler=Edit" hx-swap="none">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label for="editName" class="form-label">Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="editName" name="EditName"
+                           required maxlength="200" value="@Model?.Name">
+                </div>
+
+                <div class="mb-3">
+                    <label for="editDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="editDescription" name="EditDescription"
+                              rows="2" maxlength="1000">@Model?.Description</textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Save Changes
+                    </button>
+                    <button type="button" class="btn btn-secondary"
+                            hx-get="?handler=ViewHeader"
+                            hx-target="#cookbook-header"
+                            hx-swap="outerHTML">
+                        <i class="bi bi-x-lg"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

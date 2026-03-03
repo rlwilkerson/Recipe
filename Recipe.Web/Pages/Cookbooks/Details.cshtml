@@ -12,20 +12,32 @@
     </ol>
 </nav>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1>@Model.Result?.Name</h1>
-        @if (!string.IsNullOrWhiteSpace(Model.Result?.Description))
-        {
-            <p class="text-muted">@Model.Result.Description</p>
-        }
-    </div>
-    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#shareModal">
-        <i class="bi bi-share"></i> Share
-    </button>
-</div>
+<partial name="_CookbookHeader" model="Model.Result" />
 
-<partial name="_RecipeList" model="Model.Result?.Recipes" />
+<partial name="_RecipeList" model="Model.Result" />
+
+<!-- Delete Cookbook Modal -->
+<div class="modal fade" id="deleteCookbookModal" tabindex="-1" aria-labelledby="deleteCookbookModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteCookbookModalLabel">Delete Cookbook</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>@Model.Result?.Name</strong>?</p>
+                <p class="text-danger"><strong>This will permanently delete the cookbook and all @(Model.Result?.Recipes.Count ?? 0) recipe(s) inside it.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form hx-post="?handler=Delete" hx-swap="none">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Delete Cookbook</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Share Modal (stub) -->
 <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
@@ -44,3 +56,4 @@
         </div>
     </div>
 </div>
+

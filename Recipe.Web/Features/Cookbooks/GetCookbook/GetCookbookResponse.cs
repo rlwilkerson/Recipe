@@ -7,6 +7,7 @@ public record GetCookbookResponse(
     string? Description,
     string OwnerName,
     DateTime CreatedAt,
+    bool IsOwner,
     IReadOnlyList<CookbookRecipeItem> Recipes);
 
 public record CookbookRecipeItem(

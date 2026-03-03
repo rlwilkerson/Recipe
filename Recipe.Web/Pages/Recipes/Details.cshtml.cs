@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Recipe.Web.Features.Cookbooks.AddRecipeToCookbook;
 using Recipe.Web.Features.Recipes.CreateRecipe;
+using Recipe.Web.Features.Recipes.DeleteRecipe;
 using Recipe.Web.Features.Recipes.EditRecipe;
 using Recipe.Web.Features.Recipes.GetRecipe;
 using System.Security.Claims;
@@ -88,23 +89,31 @@ public class DetailsModel : PageModel
     public async Task<IActionResult> OnPostSaveCloneAsync()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        
+
         // Get original recipe to know which cookbooks it belongs to
         var original = await _mediator.Send(new GetRecipeQuery(PublicId, userId));
-        
+
         // Create the cloned recipe
         var result = await _mediator.Send(new CreateRecipeCommand(
             EditTitle!, EditDescription,
             EditIngredients, EditInstructions,
             EditPrepTime, EditCookTime, EditServings, userId));
-        
+
         // Add to same cookbook(s) as original
-        foreach (var cookbookPublicId in original?.CookbookPublicIds ?? [])
+        foreach (var cookbook in original?.Cookbooks ?? [])
         {
-            await _mediator.Send(new AddRecipeToCookbookCommand(cookbookPublicId, result.PublicId, null));
+            await _mediator.Send(new AddRecipeToCookbookCommand(cookbook.PublicId, result.PublicId, null));
         }
-        
+
         Response.Headers["HX-Redirect"] = $"/recipes/{result.PublicId}/{result.Slug}";
+        return new OkResult();
+    }
+
+    public async Task<IActionResult> OnPostDeleteAsync()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        await _mediator.Send(new DeleteRecipeCommand(PublicId, userId));
+        Response.Headers["HX-Redirect"] = "/Cookbooks";
         return new OkResult();
     }
 }

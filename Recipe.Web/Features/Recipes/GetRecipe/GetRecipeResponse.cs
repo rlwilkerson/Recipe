@@ -14,4 +14,4 @@ public record GetRecipeResponse(
     string? OriginalRecipePublicId,
     DateTime CreatedAt,
     bool IsOwner,
-    IReadOnlyList<string> CookbookPublicIds);
+    IReadOnlyList<RecipeCookbookInfo> Cookbooks);

@@ -7,6 +7,14 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
+        <li class="breadcrumb-item"><a asp-page="/Cookbooks/Index">My Cookbooks</a></li>
+        @if (Model.Result?.Cookbooks?.Count > 0)
+        {
+            var firstCookbook = Model.Result.Cookbooks[0];
+            <li class="breadcrumb-item">
+                <a href="/cookbooks/@firstCookbook.PublicId/@firstCookbook.Slug">@firstCookbook.Name</a>
+            </li>
+        }
         <li class="breadcrumb-item active" aria-current="page">@Model.Result?.Title</li>
     </ol>
 </nav>

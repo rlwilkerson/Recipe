@@ -280,3 +280,35 @@ Added clone recipe support to `Recipe.Web/Pages/Recipes/Details.cshtml.cs`:
 
 **No Authorization Check on Clone Form:** `OnGetCloneFormAsync()` doesn't check `IsOwner` because any authenticated user who can view a recipe should be able to clone it (creates their own copy). The handler only checks if the recipe exists.
 
+### Session: Fix Clone Recipe Cookbook Saving
+
+**Date:** 2026-03-04
+
+#### What Was Done
+
+Fixed bug where cloned recipes were not being added to any cookbooks. Root cause: `OnPostSaveCloneAsync` created the recipe but didn't call `AddRecipeToCookbookCommand`.
+
+1. **Extended `GetRecipeResponse` record** — added `IReadOnlyList<string> CookbookPublicIds` as the last parameter to track which cookbooks contain the recipe
+
+2. **Updated `GetRecipeHandler` projection** — added `recipe.CookbookRecipes.Select(cr => cr.Cookbook.PublicId).ToList()` to populate the new field (data already loaded via existing `.Include(r => r.CookbookRecipes).ThenInclude(cr => cr.Cookbook)`)
+
+3. **Updated `OnPostSaveCloneAsync` in Details.cshtml.cs:**
+   - Added using: `using Recipe.Web.Features.Cookbooks.AddRecipeToCookbook;`
+   - Fetch original recipe first to get its `CookbookPublicIds`
+   - After creating cloned recipe, loop through original's cookbooks and add clone to each using `AddRecipeToCookbookCommand`
+
+4. **Verified no other callers** — grep confirmed only one place constructs `GetRecipeResponse` (in GetRecipeHandler), so no other updates needed
+
+#### Key Pattern: Cloning Cookbook Membership
+
+When cloning a recipe, preserve its cookbook membership:
+1. Fetch original recipe to get `CookbookPublicIds`
+2. Create the new recipe
+3. Loop through original's cookbooks and add the clone to each: `await _mediator.Send(new AddRecipeToCookbookCommand(cookbookPublicId, result.PublicId, null))`
+
+The `null` sortOrder parameter in AddRecipeToCookbookCommand lets the handler assign the next available sort position automatically.
+
+#### Build Verification
+
+Built Recipe.Web project to temp directory to avoid Aspire file locks. Build succeeded with 0 errors, 2 warnings (unrelated NU1903 vulnerability in Microsoft.Build.Tasks.Core).
+

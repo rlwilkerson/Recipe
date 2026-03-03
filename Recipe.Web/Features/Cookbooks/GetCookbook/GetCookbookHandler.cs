@@ -58,6 +58,7 @@ public class GetCookbookHandler : IRequestHandler<GetCookbookQuery, GetCookbookR
             cookbook.Description,
             cookbook.Owner.UserName ?? "Unknown",
             cookbook.CreatedAt,
+            cookbook.OwnerId == request.UserId,
             recipeItems);
     }
 }
