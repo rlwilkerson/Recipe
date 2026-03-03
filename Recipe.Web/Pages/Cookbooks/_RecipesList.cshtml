@@ -1,5 +1,6 @@
 @model IReadOnlyList<Recipe.Web.Features.Cookbooks.GetCookbook.CookbookRecipeItem>
 
+<div id="cookbook-recipes">
 @if (Model == null || !Model.Any())
 {
     <div class="text-center py-5">
@@ -27,3 +28,4 @@ else
         }
     </div>
 }
+</div>

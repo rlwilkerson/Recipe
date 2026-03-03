@@ -39,13 +39,13 @@ public class LoginModel : PageModel
 
     public async Task OnGetAsync(string? returnUrl = null)
     {
-        ReturnUrl = returnUrl ?? Url.Content("~/");
+        ReturnUrl = returnUrl ?? Url.Content("~/Cookbooks");
         await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
     }
 
     public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
     {
-        returnUrl ??= Url.Content("~/");
+        returnUrl ??= Url.Content("~/Cookbooks");
 
         if (ModelState.IsValid)
         {

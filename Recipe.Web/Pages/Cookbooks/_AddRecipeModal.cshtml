@@ -1,5 +1,3 @@
-@page
-
 <div class="modal show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -11,16 +9,20 @@
                   hx-target="#cookbook-recipes"
                   hx-swap="outerHTML"
                   hx-on::after-request="if(event.detail.successful) closeRecipeModal()">
+                @Html.AntiForgeryToken()
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="recipePublicId" class="form-label">Recipe Public ID or Search <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="recipePublicId" name="RecipePublicId" required>
-                        <div class="form-text">Enter the public ID of the recipe you want to add</div>
+                        <label for="recipeTitle" class="form-label">Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="recipeTitle" name="RecipeTitle" required maxlength="200">
+                    </div>
+                    <div class="mb-3">
+                        <label for="recipeDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="recipeDescription" name="RecipeDescription" rows="2" maxlength="1000"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeRecipeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Recipe</button>
+                    <button type="submit" class="btn btn-success">Add Recipe</button>
                 </div>
             </form>
         </div>
