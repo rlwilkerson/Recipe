@@ -1,0 +1,37 @@
+@page
+
+<div class="modal show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Cookbook</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()"></button>
+            </div>
+            <form hx-post="/cookbooks?handler=CreateCookbook"
+                  hx-target="#cookbook-list"
+                  hx-swap="outerHTML"
+                  hx-on::after-request="if(event.detail.successful) closeModal()">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="cookbookName" class="form-label">Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="cookbookName" name="Name" required maxlength="200">
+                    </div>
+                    <div class="mb-3">
+                        <label for="cookbookDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="cookbookDescription" name="Description" rows="3" maxlength="1000"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Cookbook</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function closeModal() {
+        document.getElementById('modal-container').innerHTML = '';
+    }
+</script>

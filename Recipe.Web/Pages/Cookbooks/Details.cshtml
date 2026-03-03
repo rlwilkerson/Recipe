@@ -1,0 +1,60 @@
+@page "/cookbooks/{publicId}/{slug}"
+@model Recipe.Web.Pages.Cookbooks.DetailsModel
+@{
+    ViewData["Title"] = Model.Result?.Name ?? "Cookbook Details";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
+        <li class="breadcrumb-item"><a asp-page="/Cookbooks/Index">My Cookbooks</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Result?.Name</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>@Model.Result?.Name</h1>
+        @if (!string.IsNullOrWhiteSpace(Model.Result?.Description))
+        {
+            <p class="text-muted">@Model.Result.Description</p>
+        }
+    </div>
+    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#shareModal">
+        <i class="bi bi-share"></i> Share
+    </button>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Recipes</h2>
+    <button hx-get="/cookbooks/@Model.Result?.PublicId/@Model.Result?.Slug?handler=AddRecipeModal"
+            hx-target="#recipe-modal-container"
+            hx-swap="innerHTML"
+            class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Add Recipe
+    </button>
+</div>
+
+<div id="cookbook-recipes">
+    <partial name="_RecipesList" model="Model.Result?.Recipes" />
+</div>
+
+<div id="recipe-modal-container"></div>
+
+<!-- Share Modal (stub) -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shareModalLabel">Share Cookbook</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Share functionality coming soon!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mt-5">
+            <div class="card-body text-center p-5">
+                <h1 class="display-3 fw-bold mb-3">Welcome to Cookbook</h1>
+                <p class="lead text-muted mb-4">
+                    Organize your recipes, create cookbooks, and share them with friends and family. 
+                    Build your digital recipe collection and never lose track of your favorite dishes.
+                </p>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a asp-page="/Cookbooks/Index" class="btn btn-primary btn-lg px-5">Get Started</a>
+                }
+                else
+                {
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary btn-lg px-5">Get Started</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

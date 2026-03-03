@@ -3,7 +3,7 @@
 ## Project Context
 
 **Project:** Cookbook Web Application
-**Stack:** ASP.NET Core Razor Pages, Entity Framework Core, ASP.NET Core Identity, HTMX, Bootstrap 5, SQL Server (SQLite for dev)
+**Stack:** ASP.NET Core Razor Pages, Entity Framework Core, ASP.NET Core Identity, HTMX, Bootstrap 5, PostgreSQL, .NET Aspire (orchestration), Playwright (UI integration testing)
 **User:** Rick Wilkerson
 
 ## Members

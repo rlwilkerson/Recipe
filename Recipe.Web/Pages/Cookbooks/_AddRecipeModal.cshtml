@@ -1,0 +1,34 @@
+@page
+
+<div class="modal show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Recipe to Cookbook</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeRecipeModal()"></button>
+            </div>
+            <form hx-post="?handler=AddRecipe"
+                  hx-target="#cookbook-recipes"
+                  hx-swap="outerHTML"
+                  hx-on::after-request="if(event.detail.successful) closeRecipeModal()">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="recipePublicId" class="form-label">Recipe Public ID or Search <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="recipePublicId" name="RecipePublicId" required>
+                        <div class="form-text">Enter the public ID of the recipe you want to add</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeRecipeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Recipe</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function closeRecipeModal() {
+        document.getElementById('recipe-modal-container').innerHTML = '';
+    }
+</script>

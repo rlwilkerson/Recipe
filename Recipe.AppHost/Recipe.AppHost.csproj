@@ -1,0 +1,19 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.1.1">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>aace26ef-a868-4a12-995e-d6dd96f0f990</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Recipe.Web\Recipe.Web.csproj" />
+  </ItemGroup>
+
+</Project>
