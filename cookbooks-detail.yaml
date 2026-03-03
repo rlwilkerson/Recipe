@@ -1,0 +1,60 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "Cookbook" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e6]:
+          - list [ref=e7]:
+            - listitem [ref=e8]:
+              - link "Home" [ref=e9] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e10]:
+              - link "My Cookbooks" [ref=e11] [cursor=pointer]:
+                - /url: /Cookbooks
+          - list [ref=e12]:
+            - listitem [ref=e13]:
+              - button "Sign Out (testuser@cookbook.test)" [ref=e15] [cursor=pointer]
+  - main [ref=e17]:
+    - navigation "breadcrumb" [ref=e18]:
+      - list [ref=e19]:
+        - listitem [ref=e20]:
+          - link "Home" [ref=e21] [cursor=pointer]:
+            - /url: /
+        - listitem [ref=e22]:
+          - text: /
+          - link "My Cookbooks" [ref=e23] [cursor=pointer]:
+            - /url: /Cookbooks
+        - listitem [ref=e24]: / My First Cookbook
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - heading "My First Cookbook" [level=1] [ref=e27]
+        - paragraph [ref=e28]: A collection of my favorite recipes
+      - button "Share" [ref=e29] [cursor=pointer]: Share
+    - generic [ref=e30]:
+      - generic [ref=e31]:
+        - heading "Recipes" [level=2] [ref=e32]
+        - button "Add Recipe" [ref=e33] [cursor=pointer]: Add Recipe
+      - generic [ref=e34]:
+        - generic [ref=e36]:
+          - heading "Chocolate Chip Cookies (Updated)" [level=5] [ref=e38]
+          - link "View Recipe" [ref=e40] [cursor=pointer]:
+            - /url: /recipes/DrTltUHHcj/chocolate-chip-cookies-updated
+        - generic [ref=e42]:
+          - heading "Spaghetti Carbonara" [level=5] [ref=e44]
+          - link "View Recipe" [ref=e46] [cursor=pointer]:
+            - /url: /recipes/xYyqG0P5He/spaghetti-carbonara
+        - generic [ref=e48]:
+          - heading "Banana Bread" [level=5] [ref=e50]
+          - link "View Recipe" [ref=e52] [cursor=pointer]:
+            - /url: /recipes/gnLa4LLbHM/banana-bread
+        - generic [ref=e54]:
+          - heading "Lemon Garlic Pasta" [level=5] [ref=e56]
+          - link "View Recipe" [ref=e58] [cursor=pointer]:
+            - /url: /recipes/aVSiLU1uSk/lemon-garlic-pasta
+        - generic [ref=e60]:
+          - heading "Avocado Toast" [level=5] [ref=e62]
+          - link "View Recipe" [ref=e64] [cursor=pointer]:
+            - /url: /recipes/TncIXfUqy2/avocado-toast
+  - contentinfo [ref=e65]:
+    - generic [ref=e66]: © 2026 - Cookbook
