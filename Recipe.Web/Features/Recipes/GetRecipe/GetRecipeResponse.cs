@@ -13,4 +13,5 @@ public record GetRecipeResponse(
     string OwnerName,
     string? OriginalRecipePublicId,
     DateTime CreatedAt,
-    bool IsOwner);
+    bool IsOwner,
+    IReadOnlyList<string> CookbookPublicIds);

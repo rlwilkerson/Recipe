@@ -59,6 +59,7 @@ public class GetRecipeHandler : IRequestHandler<GetRecipeQuery, GetRecipeRespons
             recipe.Owner.UserName ?? "Unknown",
             recipe.OriginalRecipe?.PublicId,
             recipe.CreatedAt,
-            recipe.OwnerId == request.UserId);
+            recipe.OwnerId == request.UserId,
+            recipe.CookbookRecipes.Select(cr => cr.Cookbook.PublicId).ToList());
     }
 }
