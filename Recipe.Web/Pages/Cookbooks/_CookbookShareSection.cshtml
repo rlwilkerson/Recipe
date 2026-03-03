@@ -1,0 +1,61 @@
+@using Recipe.Web.Features.Cookbooks.GetCookbookShares
+@model IReadOnlyList<CookbookShareItem>
+
+@if (TempData["ShareError"] != null)
+{
+    <div class="alert alert-danger alert-dismissible" id="share-error">
+        @TempData["ShareError"]
+    </div>
+}
+
+<h6 class="mb-3">Share with someone</h6>
+<form hx-post="?handler=Share"
+      hx-target="#share-modal-body"
+      hx-swap="innerHTML">
+    @Html.AntiForgeryToken()
+    <div class="mb-3">
+        <label for="shareEmail" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="shareEmail" name="ShareEmail"
+               required placeholder="user@example.com">
+    </div>
+    <div class="mb-3">
+        <label for="sharePermission" class="form-label">Permission</label>
+        <select class="form-select" id="sharePermission" name="SharePermission">
+            <option value="Read">View only</option>
+            <option value="Update">Can edit</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">
+        <i class="bi bi-share"></i> Share
+    </button>
+</form>
+
+@if (Model != null && Model.Any())
+{
+    <hr>
+    <h6 class="mb-3">Shared with</h6>
+    <ul class="list-group list-group-flush">
+        @foreach (var share in Model)
+        {
+            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                <div>
+                    <span>@share.TargetEmail</span>
+                    <span class="badge bg-secondary ms-2">@share.Permission</span>
+                </div>
+                <form hx-post="?handler=RevokeShare"
+                      hx-target="#share-modal-body"
+                      hx-swap="innerHTML">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="RevokeShareId" value="@share.ShareId">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-x-lg"></i> Revoke
+                    </button>
+                </form>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p class="text-muted small mt-3">Not shared with anyone yet.</p>
+}

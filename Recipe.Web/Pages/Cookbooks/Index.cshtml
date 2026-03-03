@@ -18,6 +18,60 @@
     <partial name="_CookbookList" model="Model.Result?.Cookbooks" />
 </div>
 
+@if (Model.SharedWithMe?.Cookbooks?.Any() == true)
+{
+    <hr>
+    <h2 class="mb-3">Shared Cookbooks</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+        @foreach (var cookbook in Model.SharedWithMe.Cookbooks)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@cookbook.Name</h5>
+                        @if (!string.IsNullOrWhiteSpace(cookbook.Description))
+                        {
+                            <p class="card-text text-muted">@cookbook.Description</p>
+                        }
+                        <p class="card-text"><small class="text-muted">Shared by @cookbook.OwnerName</small></p>
+                        <span class="badge bg-secondary">@cookbook.Permission</span>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/cookbooks/@cookbook.PublicId/@cookbook.Slug" class="btn btn-sm btn-outline-primary">View</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@if (Model.SharedWithMe?.Recipes?.Any() == true)
+{
+    <hr>
+    <h2 class="mb-3">Shared Recipes</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var recipe in Model.SharedWithMe.Recipes)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@recipe.Title</h5>
+                        @if (!string.IsNullOrWhiteSpace(recipe.Description))
+                        {
+                            <p class="card-text text-muted">@recipe.Description</p>
+                        }
+                        <p class="card-text"><small class="text-muted">Shared by @recipe.OwnerName</small></p>
+                        <span class="badge bg-secondary">@recipe.Permission</span>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/recipes/@recipe.PublicId/@recipe.Slug" class="btn btn-sm btn-outline-primary">View</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
 <div id="modal-container"></div>
 
 @section Scripts {

@@ -21,7 +21,7 @@
 
 <partial name="_RecipeViewContent" model="Model.Result" />
 
-<!-- Share Modal (stub) -->
+<!-- Share Modal -->
 <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -29,8 +29,14 @@
                 <h5 class="modal-title" id="shareModalLabel">Share Recipe</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <p>Share functionality coming soon!</p>
+            <div class="modal-body"
+                 id="share-modal-body"
+                 hx-get="?handler=ShareSection"
+                 hx-trigger="shown.bs.modal from:#shareModal">
+                <div class="text-center py-3">
+                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                    <span class="ms-2">Loading...</span>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

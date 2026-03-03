@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Recipe.Web.Features.Cookbooks.CreateCookbook;
 using Recipe.Web.Features.Cookbooks.ListCookbooks;
+using Recipe.Web.Features.Shared.GetSharedWithMe;
 using System.Security.Claims;
 
 namespace Recipe.Web.Pages.Cookbooks;
@@ -19,6 +20,7 @@ public class IndexModel : PageModel
     }
 
     public ListCookbooksResponse? Result { get; set; }
+    public SharedWithMeResponse? SharedWithMe { get; set; }
 
     [BindProperty]
     public string? Name { get; set; }
@@ -30,6 +32,7 @@ public class IndexModel : PageModel
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
         Result = await _mediator.Send(new ListCookbooksQuery(OwnerId: userId));
+        SharedWithMe = await _mediator.Send(new GetSharedWithMeQuery(userId));
     }
 
     public IActionResult OnGetCreateCookbookModal()

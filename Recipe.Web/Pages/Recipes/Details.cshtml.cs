@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Recipe.Web.Features.Cookbooks.AddRecipeToCookbook;
@@ -7,6 +8,10 @@ using Recipe.Web.Features.Recipes.CreateRecipe;
 using Recipe.Web.Features.Recipes.DeleteRecipe;
 using Recipe.Web.Features.Recipes.EditRecipe;
 using Recipe.Web.Features.Recipes.GetRecipe;
+using Recipe.Web.Features.Recipes.GetRecipeShares;
+using Recipe.Web.Features.Recipes.ShareRecipe;
+using Recipe.Web.Features.Cookbooks.RevokeShare;
+using Recipe.Web.Models;
 using System.Security.Claims;
 
 namespace Recipe.Web.Pages.Recipes;
@@ -15,10 +20,12 @@ namespace Recipe.Web.Pages.Recipes;
 public class DetailsModel : PageModel
 {
     private readonly IMediator _mediator;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public DetailsModel(IMediator mediator)
+    public DetailsModel(IMediator mediator, UserManager<ApplicationUser> userManager)
     {
         _mediator = mediator;
+        _userManager = userManager;
     }
 
     [FromRoute]
@@ -36,6 +43,11 @@ public class DetailsModel : PageModel
     [BindProperty] public int? EditPrepTime { get; set; }
     [BindProperty] public int? EditCookTime { get; set; }
     [BindProperty] public int? EditServings { get; set; }
+
+    // Share
+    [BindProperty] public string? ShareEmail { get; set; }
+    [BindProperty] public string? SharePermission { get; set; }
+    [BindProperty] public int? RevokeShareId { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -115,5 +127,37 @@ public class DetailsModel : PageModel
         await _mediator.Send(new DeleteRecipeCommand(PublicId, userId));
         Response.Headers["HX-Redirect"] = "/Cookbooks";
         return new OkResult();
+    }
+
+    public async Task<IActionResult> OnGetShareSectionAsync()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var shares = await _mediator.Send(new GetRecipeSharesQuery(PublicId, userId));
+        return Partial("_RecipeShareSection", shares);
+    }
+
+    public async Task<IActionResult> OnPostShareAsync()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var targetUser = await _userManager.FindByEmailAsync(ShareEmail ?? string.Empty);
+        if (targetUser == null)
+        {
+            var shares = await _mediator.Send(new GetRecipeSharesQuery(PublicId, userId));
+            return Partial("_RecipeShareSection", shares);
+        }
+
+        var permission = SharePermission == "Update" ? Models.SharePermission.Update : Models.SharePermission.Read;
+        await _mediator.Send(new ShareRecipeCommand(PublicId, targetUser.Id, permission));
+
+        var updatedShares = await _mediator.Send(new GetRecipeSharesQuery(PublicId, userId));
+        return Partial("_RecipeShareSection", updatedShares);
+    }
+
+    public async Task<IActionResult> OnPostRevokeShareAsync()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        await _mediator.Send(new RevokeShareCommand(RevokeShareId ?? 0, userId));
+        var shares = await _mediator.Send(new GetRecipeSharesQuery(PublicId, userId));
+        return Partial("_RecipeShareSection", shares);
     }
 }
