@@ -12,4 +12,5 @@ public record GetRecipeResponse(
     int? Servings,
     string OwnerName,
     string? OriginalRecipePublicId,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    bool IsOwner);

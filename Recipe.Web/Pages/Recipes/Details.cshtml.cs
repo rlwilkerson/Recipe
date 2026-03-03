@@ -1,11 +1,14 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Recipe.Web.Features.Recipes.EditRecipe;
 using Recipe.Web.Features.Recipes.GetRecipe;
 using System.Security.Claims;
 
 namespace Recipe.Web.Pages.Recipes;
 
+[Authorize]
 public class DetailsModel : PageModel
 {
     private readonly IMediator _mediator;
@@ -23,6 +26,14 @@ public class DetailsModel : PageModel
 
     public GetRecipeResponse? Result { get; set; }
 
+    [BindProperty] public string? EditTitle { get; set; }
+    [BindProperty] public string? EditDescription { get; set; }
+    [BindProperty] public string? EditIngredients { get; set; }
+    [BindProperty] public string? EditInstructions { get; set; }
+    [BindProperty] public int? EditPrepTime { get; set; }
+    [BindProperty] public int? EditCookTime { get; set; }
+    [BindProperty] public int? EditServings { get; set; }
+
     public async Task<IActionResult> OnGetAsync()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -31,5 +42,26 @@ public class DetailsModel : PageModel
             return NotFound();
 
         return Page();
+    }
+
+    public async Task<IActionResult> OnGetEditModalAsync()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        Result = await _mediator.Send(new GetRecipeQuery(PublicId, userId));
+        if (Result is null || !Result.IsOwner)
+            return NotFound();
+        return Partial("_EditRecipeModal", Result);
+    }
+
+    public async Task<IActionResult> OnPostEditAsync()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var result = await _mediator.Send(new EditRecipeCommand(
+            PublicId, EditTitle!, EditDescription,
+            EditIngredients, EditInstructions,
+            EditPrepTime, EditCookTime, EditServings, userId));
+        // HTMX redirect to updated URL
+        Response.Headers["HX-Redirect"] = $"/recipes/{result.PublicId}/{result.NewSlug}";
+        return new OkResult();
     }
 }

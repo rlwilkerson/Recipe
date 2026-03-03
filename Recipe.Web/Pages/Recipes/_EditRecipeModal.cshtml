@@ -1,0 +1,69 @@
+@model Recipe.Web.Features.Recipes.GetRecipe.GetRecipeResponse
+
+<div class="modal show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Recipe</h5>
+                <button type="button" class="btn-close" aria-label="Close" onclick="closeEditModal()"></button>
+            </div>
+            <form hx-post="?handler=Edit"
+                  hx-target="#recipe-edit-modal-container"
+                  hx-swap="innerHTML"
+                  hx-on::after-request="if(event.detail.successful) closeEditModal()">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editTitle" class="form-label">Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editTitle" name="EditTitle"
+                               required maxlength="200" value="@Model?.Title">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editDescription" name="EditDescription"
+                                  rows="2" maxlength="1000">@Model?.Description</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editIngredients" class="form-label">Ingredients</label>
+                        <textarea class="form-control" id="editIngredients" name="EditIngredients"
+                                  rows="4" maxlength="5000">@Model?.Ingredients</textarea>
+                        <div class="form-text">Enter one ingredient per line</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editInstructions" class="form-label">Instructions</label>
+                        <textarea class="form-control" id="editInstructions" name="EditInstructions"
+                                  rows="5" maxlength="10000">@Model?.Instructions</textarea>
+                        <div class="form-text">Enter one step per line</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <label for="editPrepTime" class="form-label">Prep Time (min)</label>
+                            <input type="number" class="form-control" id="editPrepTime" name="EditPrepTime"
+                                   min="0" max="9999" value="@Model?.PrepTime">
+                        </div>
+                        <div class="col-4">
+                            <label for="editCookTime" class="form-label">Cook Time (min)</label>
+                            <input type="number" class="form-control" id="editCookTime" name="EditCookTime"
+                                   min="0" max="9999" value="@Model?.CookTime">
+                        </div>
+                        <div class="col-4">
+                            <label for="editServings" class="form-label">Servings</label>
+                            <input type="number" class="form-control" id="editServings" name="EditServings"
+                                   min="1" max="999" value="@Model?.Servings">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function closeEditModal() {
+        document.getElementById('recipe-edit-modal-container').innerHTML = '';
+    }
+</script>

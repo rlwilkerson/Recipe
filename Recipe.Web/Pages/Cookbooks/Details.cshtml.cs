@@ -33,6 +33,12 @@ public class DetailsModel : PageModel
     [BindProperty]
     public string? RecipeDescription { get; set; }
 
+    [BindProperty] public string? RecipeIngredients { get; set; }
+    [BindProperty] public string? RecipeInstructions { get; set; }
+    [BindProperty] public int? RecipePrepTime { get; set; }
+    [BindProperty] public int? RecipeCookTime { get; set; }
+    [BindProperty] public int? RecipeServings { get; set; }
+
     public async Task<IActionResult> OnGetAsync()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -56,7 +62,11 @@ public class DetailsModel : PageModel
         var createResult = await _mediator.Send(new CreateRecipeCommand(
             RecipeTitle!,
             RecipeDescription,
-            null, null, null, null, null,
+            RecipeIngredients,
+            RecipeInstructions,
+            RecipePrepTime,
+            RecipeCookTime,
+            RecipeServings,
             userId));
 
         // Add it to this cookbook

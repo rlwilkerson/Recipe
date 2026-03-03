@@ -77,6 +77,15 @@
             <div class="card-body">
                 <h5 class="card-title">Actions</h5>
                 <div class="d-grid gap-2">
+                    @if (Model.Result?.IsOwner == true)
+                    {
+                        <button class="btn btn-warning w-100"
+                                hx-get="?handler=EditModal"
+                                hx-target="#recipe-edit-modal-container"
+                                hx-swap="innerHTML">
+                            <i class="bi bi-pencil"></i> Edit Recipe
+                        </button>
+                    }
                     <form method="post" asp-page-handler="Clone">
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="bi bi-files"></i> Clone Recipe
@@ -111,6 +120,8 @@
         </div>
     </div>
 </div>
+
+<div id="recipe-edit-modal-container"></div>
 
 @section Scripts {
     <script>
