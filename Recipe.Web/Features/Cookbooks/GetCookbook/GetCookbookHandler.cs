@@ -44,7 +44,11 @@ public class GetCookbookHandler : IRequestHandler<GetCookbookQuery, GetCookbookR
                 cr.Recipe.PublicId,
                 cr.Recipe.Slug,
                 cr.Recipe.Title,
-                cr.SortOrder))
+                cr.SortOrder,
+                cr.Recipe.Description,
+                cr.Recipe.PrepTime,
+                cr.Recipe.CookTime,
+                cr.Recipe.Servings))
             .ToList();
 
         return new GetCookbookResponse(

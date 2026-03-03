@@ -176,6 +176,32 @@ Pages/Shared/_Layout.cshtml        (updated — conditional My Cookbooks)
 
 ## Learnings
 
+### 2026-03-04 — Recipe Card Layout Enhancement (_RecipeList.cshtml)
+
+**What I Changed:**
+- Enhanced recipe cards in `_RecipeList.cshtml` to support Description, PrepTime, CookTime, and Servings fields
+- Cards now use `d-flex flex-column` layout with `mt-auto` on button container to keep "View Recipe" button at bottom
+- Description shows as muted small text with 2-line clamp using `-webkit-line-clamp` CSS
+- Timing/servings display as small text with emoji icons (🕐 prep, 🍳 cook, 🍽️ servings) in a gap-2 flex row
+- All new fields are conditionally rendered with null checks and zero-value checks
+- Removed `card-footer` in favor of inline button in `card-body` for more flexible spacing
+
+**Key Pattern:**
+- Layout uses flexbox with `mt-auto` to push button to bottom of card while maintaining consistent card heights (h-100)
+- `-webkit-line-clamp: 2` truncates description to 2 lines with ellipsis
+- Emoji + text pattern for metadata: "🕐 10 min prep  🍳 30 min cook  🍽️ 4 servings"
+- Conditional rendering: `@if (!string.IsNullOrWhiteSpace(recipe.Description))` for description, `HasValue` + value > 0 checks for numbers
+
+**Current State:**
+- `CookbookRecipeItem` record currently only has: `PublicId`, `Slug`, `Title`, `SortOrder`
+- Markup is ready for `Description`, `PrepTime`, `CookTime`, `Servings` properties when Fenster adds them
+- Conditional checks ensure no build errors while fields are missing
+
+**File Locations:**
+```
+Recipe.Web/Pages/Cookbooks/_RecipeList.cshtml  (updated)
+```
+
 ### 2026-03-04 — Add Recipe In-Place Pattern (Cookbook Details)
 
 **What I Built:**
@@ -235,3 +261,18 @@ Recipe.Web/Pages/Cookbooks/_RecipesList.cshtml    (deleted)
 - `OnPostAddRecipeAsync()` now returns `_RecipeList` partial instead of `_RecipesList`
 - Swap target is `#recipe-list-section` (outerHTML) — both partials wrap content in outer div for full replacement
 - Build succeeded with 0 errors; Playwright-verified: Add, Submit, Cancel all work in-place
+
+## Cross-Agent Update — 2026-03-03T10:32:11Z
+
+**Session: Recipe Cards Enriched**
+
+Fenster successfully extended `CookbookRecipeItem` with Description, PrepTime, CookTime, Servings fields. EF query projection updated to populate these fields from Recipe entity — no additional database queries required. Build verified with 0 errors.
+
+Updated `_RecipeList.cshtml` recipe cards to display:
+- Description: 2-line clamp with muted text styling
+- Timing/servings metadata row: emoji-prefixed (🕐 prep, 🍳 cook, 🍽️ servings) with full null guards
+- Layout: flexbox with `mt-auto` to anchor "View Recipe" button to bottom of card
+
+Both backend and frontend changes integrated and validated.
+
+

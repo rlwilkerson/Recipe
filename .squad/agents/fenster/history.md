@@ -198,3 +198,56 @@ Following the same edit-in-place pattern established for Recipe editing. The Add
 - HTMX flow: Add button → form (`?handler=AddRecipeForm`), Cancel → list (`?handler=RecipeList`), Submit → updated list (`?handler=AddRecipe`)
 - Swap target uses `outerHTML` (not `innerHTML`) — partials wrap in outer div for full replacement
 
+### Session: CookbookRecipeItem Field Extension
+
+**Date:** 2026-03-04
+
+#### What Was Done
+
+Extended `CookbookRecipeItem` record in `Features/Cookbooks/GetCookbook/GetCookbookResponse.cs` to include recipe detail fields requested for the cookbook detail page recipe cards:
+
+1. **Updated `CookbookRecipeItem` record** — added 4 nullable fields after SortOrder:
+   - `string? Description`
+   - `int? PrepTime`
+   - `int? CookTime`
+   - `int? Servings`
+
+2. **Updated `GetCookbookHandler` projection** — extended the LINQ Select to include the new fields from `cr.Recipe`:
+   - All fields sourced from the Recipe entity already loaded via `ThenInclude(cr => cr.Recipe)`
+   - No additional database queries required; data already in memory
+
+3. **Build verification** — Built to temp directory (`-o C:\Temp\recipe-build-check`) to avoid Aspire file locks; succeeded with 0 errors
+
+#### Key Details
+
+**Final CookbookRecipeItem signature:**
+```csharp
+public record CookbookRecipeItem(
+    string PublicId, 
+    string Slug, 
+    string Title, 
+    int SortOrder,
+    string? Description,
+    int? PrepTime,
+    int? CookTime,
+    int? Servings);
+```
+
+**Property names for Hockney's partial:**
+- `Description` — nullable string
+- `PrepTime` — nullable int (minutes)
+- `CookTime` — nullable int (minutes)
+- `Servings` — nullable int
+
+All fields are nullable to match the Recipe entity schema; handlers/partials must handle null values gracefully.
+
+## Cross-Agent Update — 2026-03-03T10:32:11Z
+
+**Session: Recipe Cards Enriched**
+
+Successfully extended `CookbookRecipeItem` with Description, PrepTime, CookTime, Servings fields for cookbook recipe card display. EF query projection updated to fetch these fields from Recipe entity — no additional DB queries required. Build verified with 0 errors.
+
+Hockney has updated `_RecipeList.cshtml` recipe cards to display description (2-line clamp, muted text) and timing metadata (emoji + compact text) with full null guards. Cards use flexbox layout with `mt-auto` button positioning.
+
+Both changes merged and integrated successfully.
+

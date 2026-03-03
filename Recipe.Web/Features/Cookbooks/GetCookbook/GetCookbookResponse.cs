@@ -9,4 +9,12 @@ public record GetCookbookResponse(
     DateTime CreatedAt,
     IReadOnlyList<CookbookRecipeItem> Recipes);
 
-public record CookbookRecipeItem(string PublicId, string Slug, string Title, int SortOrder);
+public record CookbookRecipeItem(
+    string PublicId, 
+    string Slug, 
+    string Title, 
+    int SortOrder,
+    string? Description,
+    int? PrepTime,
+    int? CookTime,
+    int? Servings);

@@ -195,3 +195,109 @@ Replaced Add Recipe modal pattern with edit-in-place HTMX pattern for consistenc
 - No modal chrome — form appears inline in page layout
 - Progressive enhancement maintained
 - Playwright-verified: Add, Submit, Cancel all work in-place
+
+---
+
+## CookbookRecipeItem Field Extension
+**Date:** 2026-03-04  
+**Agent:** Fenster  
+**Status:** Implemented
+
+### Decision
+Extended `CookbookRecipeItem` record to include recipe detail fields (Description, PrepTime, CookTime, Servings) for display on cookbook detail page recipe cards.
+
+### Implementation
+**File:** `Recipe.Web/Features/Cookbooks/GetCookbook/GetCookbookResponse.cs`
+
+**Before:**
+```csharp
+public record CookbookRecipeItem(string PublicId, string Slug, string Title, int SortOrder);
+```
+
+**After:**
+```csharp
+public record CookbookRecipeItem(
+    string PublicId, 
+    string Slug, 
+    string Title, 
+    int SortOrder,
+    string? Description,
+    int? PrepTime,
+    int? CookTime,
+    int? Servings);
+```
+
+**Handler Update:**
+Updated `GetCookbookHandler.cs` projection to populate new fields from `cr.Recipe` entity (already loaded via `ThenInclude`). No additional database queries required.
+
+### Property Details
+All new fields are nullable to match Recipe entity schema:
+- **Description**: `string?` — recipe description text
+- **PrepTime**: `int?` — prep time in minutes
+- **CookTime**: `int?` — cook time in minutes
+- **Servings**: `int?` — number of servings
+
+### Build Status
+✅ Build succeeded with 0 errors (verified via `dotnet build -o C:\Temp\recipe-build-check`)
+
+### Frontend Impact
+Hockney can now reference these properties in `_RecipeList.cshtml` partial to display on recipe cards:
+- `item.Description`
+- `item.PrepTime`
+- `item.CookTime`
+- `item.Servings`
+
+All partials must handle null values gracefully (e.g., display empty string or default text when null).
+
+---
+
+## Recipe Card Layout Enhancement
+**Date:** 2026-03-04  
+**Agent:** Hockney  
+**File:** Recipe.Web/Pages/Cookbooks/_RecipeList.cshtml  
+**Status:** Implemented
+
+### Decision
+Enhanced recipe cards to display Description, PrepTime, CookTime, and Servings when available. Used flexbox layout with auto-margins to maintain consistent card heights while accommodating variable content.
+
+### Layout Structure
+```
+Card (h-100, shadow-sm)
+└── Card Body (d-flex flex-column)
+    ├── Title (h5)
+    ├── Description (small, muted, 2-line clamp) [conditional]
+    ├── Timing/Servings (small, muted, gap-2) [conditional]
+    └── View Recipe Button (mt-auto, btn-sm)
+```
+
+### CSS Patterns Used
+1. **Description Truncation:**
+   ```css
+   overflow: hidden; 
+   display: -webkit-box; 
+   -webkit-line-clamp: 2; 
+   -webkit-box-orient: vertical;
+   ```
+   - Truncates to 2 lines with ellipsis
+   - Better than `text-truncate` (single line only)
+
+2. **Button Positioning:**
+   ```html
+   <div class="mt-auto">
+   ```
+   - Pushes button to bottom of card
+   - Works with `d-flex flex-column` on parent
+
+### Conditional Rendering Logic
+- **Description:** `@if (!string.IsNullOrWhiteSpace(recipe.Description))`
+- **Timing Block:** `@if (recipe.PrepTime.HasValue || recipe.CookTime.HasValue || recipe.Servings.HasValue)`
+- **Individual Values:** `@if (recipe.PrepTime.HasValue && recipe.PrepTime.Value > 0)` (also checks > 0 to hide zero values)
+
+### Emoji Icons
+Using direct emoji characters for visual clarity without icon library dependency:
+- 🕐 = Prep time
+- 🍳 = Cook time
+- 🍽️ = Servings
+
+### Accessibility Note
+Emoji used here are decorative (not semantic). Screen readers will read the text ("10 min prep") which is sufficient context.
