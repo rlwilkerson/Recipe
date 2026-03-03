@@ -160,3 +160,38 @@ Replaced the modal edit pattern with an edit-in-place pattern for recipe editing
 - Edit form uses Bootstrap card styling (no modal)
 - Antiforgery token included in form
 - Progressive enhancement maintained
+
+---
+
+## Add Recipe In-Place Pattern
+**Date:** 2026-03-04  
+**Agents:** Fenster, Hockney  
+**Status:** Implemented
+
+### Decision
+Replaced Add Recipe modal pattern with edit-in-place HTMX pattern for consistency with Edit Recipe UX.
+
+### Implementation
+
+**Backend Changes (Fenster):**
+- Added `OnGetAddRecipeFormAsync()` — returns `Partial("_AddRecipeForm", null)` 
+- Added `OnGetRecipeListAsync()` — returns `Partial("_RecipeList", Result.Recipes)`
+- Modified `OnPostAddRecipeAsync()` — now returns `_RecipeList` partial instead of `_RecipesList`
+
+**Frontend Changes (Hockney):**
+- Created `_RecipeList.cshtml` — recipe list partial with Add Recipe button
+- Created `_AddRecipeForm.cshtml` — inline add form partial
+- Updated Details.cshtml to use `<partial name="_RecipeList" />`
+- Deleted `_AddRecipeModal.cshtml` and `_RecipesList.cshtml`
+
+### HTMX Architecture
+1. **View → Add Form:** Add Recipe button `hx-get="?handler=AddRecipeForm"` with `hx-target="#recipe-list-section"` and `hx-swap="outerHTML"`
+2. **Add Form → View:** Cancel button `hx-get="?handler=RecipeList"` with same target/swap
+3. **Save:** Form posts to `?handler=AddRecipe`, server returns updated recipe list partial
+
+### Key Details
+- Both partials use `<div id="recipe-list-section">` as outermost element for `outerHTML` swap
+- Form fields match `CreateRecipeCommand`: Title, Description, Ingredients, Instructions, PrepTime, CookTime, Servings
+- No modal chrome — form appears inline in page layout
+- Progressive enhancement maintained
+- Playwright-verified: Add, Submit, Cancel all work in-place

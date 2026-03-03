@@ -49,16 +49,25 @@ public class DetailsModel : PageModel
         return Page();
     }
 
-    public IActionResult OnGetAddRecipeModal()
+    public IActionResult OnGetAddRecipeFormAsync()
     {
-        return Partial("_AddRecipeModal", null);
+        return Partial("_AddRecipeForm", null);
+    }
+
+    public async Task<IActionResult> OnGetRecipeListAsync()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        Result = await _mediator.Send(new GetCookbookQuery(PublicId, userId));
+        if (Result is null)
+            return NotFound();
+        return Partial("_RecipeList", Result.Recipes);
     }
 
     public async Task<IActionResult> OnPostAddRecipeAsync()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
-        // Create the recipe
+        // Create the recipe and add it to this cookbook
         var createResult = await _mediator.Send(new CreateRecipeCommand(
             RecipeTitle!,
             RecipeDescription,
@@ -69,11 +78,10 @@ public class DetailsModel : PageModel
             RecipeServings,
             userId));
 
-        // Add it to this cookbook
         await _mediator.Send(new AddRecipeToCookbookCommand(PublicId, createResult.PublicId, null));
 
         // Return updated recipe list
         var cookbook = await _mediator.Send(new GetCookbookQuery(PublicId, userId));
-        return Partial("_RecipesList", cookbook?.Recipes ?? []);
+        return Partial("_RecipeList", cookbook?.Recipes ?? []);
     }
 }

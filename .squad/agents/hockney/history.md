@@ -176,6 +176,36 @@ Pages/Shared/_Layout.cshtml        (updated — conditional My Cookbooks)
 
 ## Learnings
 
+### 2026-03-04 — Add Recipe In-Place Pattern (Cookbook Details)
+
+**What I Built:**
+- Replaced modal-based Add Recipe flow with edit-in-place pattern matching the Edit Recipe pattern
+- Created `_RecipeList.cshtml` partial — wraps recipe list + Add Recipe button in `<div id="recipe-list-section">`
+- Created `_AddRecipeForm.cshtml` partial — inline add recipe form in Bootstrap card, same `<div id="recipe-list-section">` wrapper
+- Updated `Details.cshtml` — now renders `<partial name="_RecipeList" model="Model.Result?.Recipes" />` instead of separate button + partial
+- Deleted `_AddRecipeModal.cshtml` and `_RecipesList.cshtml` (old modal pattern)
+
+**HTMX Flow:**
+1. Add Recipe button in `_RecipeList`: `hx-get="?handler=AddRecipeForm" hx-target="#recipe-list-section" hx-swap="outerHTML"` → loads add form
+2. Cancel button in `_AddRecipeForm`: `hx-get="?handler=RecipeList" hx-target="#recipe-list-section" hx-swap="outerHTML"` → restores list
+3. Save button: `hx-post="?handler=AddRecipe" hx-target="#recipe-list-section" hx-swap="outerHTML" hx-include="closest form"` → adds recipe and refreshes list
+
+**Key Pattern:**
+- Both partials use `<div id="recipe-list-section">` as outer wrapper for `outerHTML` swap
+- Form fields match `CreateRecipeCommand`: Title, Description, Ingredients, Instructions, PrepTime, CookTime, Servings
+- Ingredients/instructions use textarea with "one per line" pattern matching edit form
+- No modal backdrop/chrome — form appears inline in page layout
+- Progressive enhancement maintained — form works without HTMX (standard POST)
+
+**File Locations:**
+```
+Recipe.Web/Pages/Cookbooks/_RecipeList.cshtml     (created)
+Recipe.Web/Pages/Cookbooks/_AddRecipeForm.cshtml  (created)
+Recipe.Web/Pages/Cookbooks/Details.cshtml         (updated — uses _RecipeList partial)
+Recipe.Web/Pages/Cookbooks/_AddRecipeModal.cshtml (deleted)
+Recipe.Web/Pages/Cookbooks/_RecipesList.cshtml    (deleted)
+```
+
 ### 2026-03-04 — Edit-in-Place Pattern (Replaced Modal)
 
 **What I Changed:**
@@ -195,3 +225,13 @@ Pages/Shared/_Layout.cshtml        (updated — conditional My Cookbooks)
 - No modal backdrop/chrome — form appears inline in page layout
 - Progressive enhancement maintained — form works without HTMX (standard POST)
 - Matches Fenster's PageModel handler names: `EditForm`, `ViewContent`, `Edit`
+
+## Cross-Agent Update — 2026-03-04T16:24:55Z
+
+**From Fenster + Coordinator:**
+- Add Recipe now uses edit-in-place pattern on cookbook details page (matching Edit Recipe pattern)
+- `OnGetAddRecipeFormAsync()` returns `_AddRecipeForm` partial (form appears inline)
+- `OnGetRecipeListAsync()` returns `_RecipeList` partial (cancel restores list)
+- `OnPostAddRecipeAsync()` now returns `_RecipeList` partial instead of `_RecipesList`
+- Swap target is `#recipe-list-section` (outerHTML) — both partials wrap content in outer div for full replacement
+- Build succeeded with 0 errors; Playwright-verified: Add, Submit, Cancel all work in-place

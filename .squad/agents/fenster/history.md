@@ -162,3 +162,39 @@ Refactored `Recipes/Details.cshtml.cs` to support edit-in-place pattern instead 
 
 #### Why
 Switching from Bootstrap modal UI to edit-in-place HTMX pattern where the `#recipe-content` div swaps between view and edit partials. Cleaner UX, less JavaScript, simpler DOM structure.
+
+### Session: Add Recipe In-Place Pattern
+
+**Date:** 2026-03-04
+
+#### What Was Changed
+Updated `Cookbooks/Details.cshtml.cs` to support edit-in-place pattern for adding recipes (following the same pattern used for Edit Recipe):
+- **Added `OnGetAddRecipeFormAsync()`**: Returns `Partial("_AddRecipeForm", null)` — displays inline add form
+- **Added `OnGetRecipeListAsync()`**: Loads cookbook and returns `Partial("_RecipesList", Result.Recipes)` — used to restore list view after cancel
+- **Preserved `OnGetAddRecipeModal()`**: Kept for backward compatibility with existing modal-based flow (if still in use)
+- **Preserved `OnPostAddRecipeAsync()`**: No changes needed; already returns `Partial("_RecipesList", cookbook?.Recipes ?? [])`
+- **All BindProperty fields unchanged**: RecipeTitle, RecipeDescription, RecipeIngredients, RecipeInstructions, RecipePrepTime, RecipeCookTime, RecipeServings
+
+#### Pattern Details
+**Swap Target:** The HTMX swap target is `#cookbook-recipes` (outer wrapper in `_RecipesList.cshtml`)
+- View → Add Form: `hx-get="?handler=AddRecipeForm"` with `hx-target="#cookbook-recipes"` and `hx-swap="outerHTML"`
+- Add Form → List: Cancel button `hx-get="?handler=RecipeList"` with same target/swap
+- Save: Form posts to `?handler=AddRecipe`, server returns updated `_RecipesList` partial
+
+**Handler Return Types:**
+- `OnGetAddRecipeFormAsync()` — returns no model (null), expects `_AddRecipeForm.cshtml` partial
+- `OnGetRecipeListAsync()` — returns `IReadOnlyList<CookbookRecipeItem>`, expects `_RecipesList.cshtml` partial
+- `OnPostAddRecipeAsync()` — returns `IReadOnlyList<CookbookRecipeItem>`, returns `_RecipesList.cshtml` partial
+
+#### Why
+Following the same edit-in-place pattern established for Recipe editing. The Add Recipe button lives on the cookbook details page; clicking it swaps the recipe list with an inline form. Cleaner than modal overlay, consistent UX with edit-in-place recipe editing.
+
+## Cross-Agent Update — 2026-03-04T16:24:55Z
+
+**From Hockney + Coordinator:**
+- `_RecipeList.cshtml` creates recipe list with Add Recipe button in `<div id="recipe-list-section">`
+- `_AddRecipeForm.cshtml` form matches button's swap target (`#recipe-list-section`, `outerHTML`)
+- Form fields match BindProperty names: RecipeTitle, RecipeDescription, RecipeIngredients, RecipeInstructions, RecipePrepTime, RecipeCookTime, RecipeServings
+- HTMX flow: Add button → form (`?handler=AddRecipeForm`), Cancel → list (`?handler=RecipeList`), Submit → updated list (`?handler=AddRecipe`)
+- Swap target uses `outerHTML` (not `innerHTML`) — partials wrap in outer div for full replacement
+

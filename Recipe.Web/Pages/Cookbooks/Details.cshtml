@@ -25,19 +25,7 @@
     </button>
 </div>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Recipes</h2>
-    <button hx-get="/cookbooks/@Model.Result?.PublicId/@Model.Result?.Slug?handler=AddRecipeModal"
-            hx-target="#recipe-modal-container"
-            hx-swap="innerHTML"
-            class="btn btn-success">
-        <i class="bi bi-plus-circle"></i> Add Recipe
-    </button>
-</div>
-
-<partial name="_RecipesList" model="Model.Result?.Recipes" />
-
-<div id="recipe-modal-container"></div>
+<partial name="_RecipeList" model="Model.Result?.Recipes" />
 
 <!-- Share Modal (stub) -->
 <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
