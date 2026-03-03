@@ -53,6 +53,28 @@
 
 ## Learnings
 
+### 2026-03-03 — Edit Recipe UI (Modal + Details Page)
+
+**What I Built:**
+- Added Ingredients, Instructions, PrepTime, CookTime, Servings fields to `Cookbooks/_AddRecipeModal.cshtml` (Create Recipe flow)
+- Added conditional "Edit Recipe" button (btn-warning, owner-only) to Actions card in `Recipes/Details.cshtml`, before Clone button
+- Added `<div id="recipe-edit-modal-container"></div>` at bottom of Details.cshtml (before `@section Scripts`) as HTMX swap target
+- Created `Recipes/_EditRecipeModal.cshtml` partial — Bootstrap modal (show d-block, backdrop overlay) with pre-populated form fields bound to `GetRecipeResponse`
+
+**Key Patterns:**
+- Edit modal partial uses `@model Recipe.Web.Features.Recipes.GetRecipe.GetRecipeResponse` (no `@page` directive — it's a partial)
+- HTMX POST to `?handler=Edit`, target `#recipe-edit-modal-container`, `hx-swap="innerHTML"`
+- `hx-on::after-request="if(event.detail.successful) closeEditModal()"` closes modal on success; `HX-Redirect` header from handler handles navigation
+- `closeEditModal()` JS function: sets `innerHTML = ''` on the container div
+- Owner check: `@if (Model.Result?.IsOwner == true)` gates visibility of Edit button
+
+**File Locations:**
+```
+Recipe.Web/Pages/Cookbooks/_AddRecipeModal.cshtml  (updated — added Ingredients, Instructions, PrepTime, CookTime, Servings)
+Recipe.Web/Pages/Recipes/Details.cshtml            (updated — Edit button + modal container)
+Recipe.Web/Pages/Recipes/_EditRecipeModal.cshtml   (created — new partial)
+```
+
 ### 2026-03-03 — Custom Identity Pages (Login, Register, Logout)
 
 **What I Built:**
@@ -142,3 +164,12 @@ Pages/Shared/_Layout.cshtml        (updated — conditional My Cookbooks)
 - Scanned all .cshtml files — only navbar had dark classes, now updated
 
 **Theme Colors:** Primary blue (#2196F3), clean white backgrounds, subtle shadows, Material Design typography
+
+## Cross-Agent Update — 2026-03-03T151215Z
+
+**From Fenster:**
+- `GetRecipeResponse` now has `bool IsOwner` — use `Model.Result?.IsOwner == true` to gate Edit button (already implemented)
+- `Recipes/Details.cshtml.cs` is now `[Authorize]` — unauthenticated users are redirected to login before reaching the page; HTMX calls to `?handler=EditModal` from non-authenticated contexts will redirect
+- `OnPostEditAsync()` sets `Response.Headers["HX-Redirect"]` to new URL on success — HTMX will navigate; modal close via `closeEditModal()` may not fire if redirect happens first (this is expected/correct behavior)
+- BindProperty names in `Recipes/Details.cshtml.cs`: EditTitle, EditDescription, EditIngredients, EditInstructions, EditPrepTime, EditCookTime, EditServings
+- BindProperty names in `Cookbooks/Details.cshtml.cs`: RecipeIngredients, RecipeInstructions, RecipePrepTime, RecipeCookTime, RecipeServings

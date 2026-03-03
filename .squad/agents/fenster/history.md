@@ -104,3 +104,47 @@
 4. **Test Updates**: Updated existing GetCookbookHandlerTests to pass userId parameter after changing query signature.
 
 5. **Partial View Fixes**: Fixed cshtml partial namespaces (_CookbookList, _RecipesList) to reference correct Feature types instead of non-existent Recipe.Application namespace.
+
+## Learnings
+
+### Session: EditRecipe Feature + BindProperty Expansion
+
+**Date:** [Current Session]
+
+#### What Was Done
+
+1. **Expanded Add Recipe binding** in `Cookbooks/Details.cshtml.cs`:
+   - Added `RecipeIngredients`, `RecipeInstructions`, `RecipePrepTime`, `RecipeCookTime`, `RecipeServings` BindProperty fields
+   - Updated `OnPostAddRecipeAsync()` to pass all fields to `CreateRecipeCommand` (replaced `null, null, null, null, null` placeholders)
+
+2. **Created EditRecipe vertical slice** (`Features/Recipes/EditRecipe/`):
+   - `EditRecipeCommand.cs` — record with all recipe fields + RequestingUserId
+   - `EditRecipeResponse.cs` — returns PublicId, NewSlug, Title
+   - `EditRecipeHandler.cs` — ownership check (throws `UnauthorizedAccessException` if not owner), updates all fields, regenerates slug, saves
+
+3. **Extended `GetRecipeResponse`** — added `bool IsOwner` as the last field
+
+4. **Extended `GetRecipeHandler`** — added `recipe.OwnerId == request.UserId` for the new IsOwner field
+
+5. **Updated `Recipes/Details.cshtml.cs`**:
+   - Added `[Authorize]` attribute
+   - Added 7 BindProperty fields for edit (EditTitle, EditDescription, EditIngredients, EditInstructions, EditPrepTime, EditCookTime, EditServings)
+   - Added `OnGetEditModalAsync()` — loads recipe, checks IsOwner, returns `_EditRecipeModal` partial
+   - Added `OnPostEditAsync()` — dispatches EditRecipeCommand, sets `HX-Redirect` header, returns OkResult
+
+#### Key Pattern: HTMX Redirect After POST
+Set `Response.Headers["HX-Redirect"]` before returning `OkResult()` to let HTMX navigate to the new URL after a successful mutation. This is the correct pattern for slug-changing edits where the URL changes.
+
+#### Key Pattern: IsOwner on Query Response
+Adding `IsOwner` directly to the response record (rather than a separate query) avoids an extra round-trip. The handler already loads the entity and has the OwnerId; `recipe.OwnerId == request.UserId` is free.
+
+#### Build Note
+When Recipe.Web is running (via Aspire), `dotnet build` fails with MSB3027 file-lock errors on ServiceDefaults.dll. Build to a temp output dir (`-o C:\Temp\...`) avoids the lock and confirms 0 compiler errors.
+
+## Cross-Agent Update — 2026-03-03T151215Z
+
+**From Hockney:**
+- `_EditRecipeModal.cshtml` form field names: `EditTitle`, `EditDescription`, `EditIngredients`, `EditInstructions`, `EditPrepTime`, `EditCookTime`, `EditServings` — must match PageModel BindProperty names in `Recipes/Details.cshtml.cs`
+- `_AddRecipeModal.cshtml` field names: `RecipeIngredients`, `RecipeInstructions`, `RecipePrepTime`, `RecipeCookTime`, `RecipeServings` — must match BindProperty names in `Cookbooks/Details.cshtml.cs`
+- Edit modal HTMX target: `#recipe-edit-modal-container` (div added to Details.cshtml)
+- Edit modal close: `closeEditModal()` clears container innerHTML; no Bootstrap JS `.modal('hide')` call needed

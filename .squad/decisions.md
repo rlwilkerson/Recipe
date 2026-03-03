@@ -91,3 +91,36 @@ _Append-only. Managed by Scribe. Agents write to `.squad/decisions/inbox/` — S
 - Updated `_LoginPartial.cshtml` to reference custom pages
 - Updated `_Layout.cshtml` with auth-conditional "My Cookbooks" link
 - Build clean: 0 errors
+
+---
+
+## Bootswatch Materia Theme
+**Date:** 2026-03-04  
+**Source:** hockney-bootswatch-materia.md  
+**Content:**
+- Replaced Bootstrap 5 CDN with Bootswatch Materia (`bootswatch@5.3.3/dist/materia/bootstrap.min.css`)
+- Navbar updated from `navbar-dark bg-dark` to `navbar-light bg-white shadow-sm`
+- Bootstrap JS, HTMX CDN, and site.css unchanged
+- To swap themes in future: change `/materia/` in CDN URL to desired theme name
+
+---
+
+## EditRecipe Feature + IsOwner on GetRecipeResponse
+**Date:** 2026-03-03T151215Z  
+**Source:** fenster-edit-recipe.md  
+**Content:**
+- `IsOwner` added to `GetRecipeResponse` — computed inline as `recipe.OwnerId == request.UserId` (no extra DB call)
+- `UnauthorizedAccessException` thrown by mutating handlers (Edit, Delete) to distinguish "not found" from "not authorized"; Get handlers return `null` for both (404 security pattern)
+- `[Authorize]` added to `Recipes/Details` PageModel — entire page requires authentication
+
+---
+
+## Edit Recipe UI (Modal + Details Page)
+**Date:** 2026-03-03T151215Z  
+**Source:** hockney-edit-recipe-ui.md  
+**Content:**
+- `_EditRecipeModal.cshtml` uses `@model GetRecipeResponse` (partial, no `@page` directive); served via HTMX GET handler
+- HTMX `hx-on::after-request` closes modal on success; `HX-Redirect` response header handles navigation after slug-changing edits
+- `closeEditModal()` sets container `innerHTML = ''` (consistent with `closeRecipeModal()` pattern)
+- "Edit Recipe" button gated with `@if (Model.Result?.IsOwner == true)`, styled `btn-warning`
+- Add Recipe modal (`_AddRecipeModal.cshtml`) extended with Ingredients, Instructions, PrepTime, CookTime, Servings fields
