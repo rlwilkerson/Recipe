@@ -148,3 +148,17 @@ When Recipe.Web is running (via Aspire), `dotnet build` fails with MSB3027 file-
 - `_AddRecipeModal.cshtml` field names: `RecipeIngredients`, `RecipeInstructions`, `RecipePrepTime`, `RecipeCookTime`, `RecipeServings` — must match BindProperty names in `Cookbooks/Details.cshtml.cs`
 - Edit modal HTMX target: `#recipe-edit-modal-container` (div added to Details.cshtml)
 - Edit modal close: `closeEditModal()` clears container innerHTML; no Bootstrap JS `.modal('hide')` call needed
+
+### Session: Edit-in-Place Handler Refactor
+
+**Date:** 2026-03-03
+
+#### What Was Changed
+Refactored `Recipes/Details.cshtml.cs` to support edit-in-place pattern instead of modal-based editing:
+- **Renamed `OnGetEditModalAsync` → `OnGetEditFormAsync`**: Changed return to `Partial("_RecipeEditForm", Result)` — loads recipe, checks IsOwner, returns edit form partial
+- **Added `OnGetViewContentAsync`**: New handler that loads recipe and returns `Partial("_RecipeViewContent", Result)` — used to restore view mode after cancel; no IsOwner check since view content is visible to all who can see the page
+- **Preserved all BindProperty fields**: EditTitle, EditDescription, EditIngredients, EditInstructions, EditPrepTime, EditCookTime, EditServings still needed for `OnPostEditAsync`
+- **No changes to `OnPostEditAsync`**: Still uses HX-Redirect pattern for slug-changing edits
+
+#### Why
+Switching from Bootstrap modal UI to edit-in-place HTMX pattern where the `#recipe-content` div swaps between view and edit partials. Cleaner UX, less JavaScript, simpler DOM structure.

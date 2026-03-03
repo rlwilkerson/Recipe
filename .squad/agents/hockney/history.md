@@ -173,3 +173,25 @@ Pages/Shared/_Layout.cshtml        (updated — conditional My Cookbooks)
 - `OnPostEditAsync()` sets `Response.Headers["HX-Redirect"]` to new URL on success — HTMX will navigate; modal close via `closeEditModal()` may not fire if redirect happens first (this is expected/correct behavior)
 - BindProperty names in `Recipes/Details.cshtml.cs`: EditTitle, EditDescription, EditIngredients, EditInstructions, EditPrepTime, EditCookTime, EditServings
 - BindProperty names in `Cookbooks/Details.cshtml.cs`: RecipeIngredients, RecipeInstructions, RecipePrepTime, RecipeCookTime, RecipeServings
+
+## Learnings
+
+### 2026-03-04 — Edit-in-Place Pattern (Replaced Modal)
+
+**What I Changed:**
+- Replaced modal edit pattern with edit-in-place pattern using HTMX outerHTML swapping
+- Created `_RecipeViewContent.cshtml` partial — wraps recipe display in `<div id="recipe-content">` for HTMX targeting
+- Created `_RecipeEditForm.cshtml` partial — inline edit form in Bootstrap card, same `<div id="recipe-content">` wrapper
+- Updated `Details.cshtml` — now renders `<partial name="_RecipeViewContent" model="Model.Result" />` instead of inline markup
+- Deleted `_EditRecipeModal.cshtml` (old modal pattern)
+
+**HTMX Flow:**
+1. Edit button in `_RecipeViewContent`: `hx-get="?handler=EditForm" hx-target="#recipe-content" hx-swap="outerHTML"` → loads edit form
+2. Cancel button in `_RecipeEditForm`: `hx-get="?handler=ViewContent" hx-target="#recipe-content" hx-swap="outerHTML"` → restores view
+3. Save button: `hx-post="?handler=Edit"` → server sets `HX-Redirect` header, HTMX navigates to updated recipe URL
+
+**Key Pattern:**
+- Both partials use `<div id="recipe-content">` as outer wrapper — this is required for `outerHTML` swap to work correctly
+- No modal backdrop/chrome — form appears inline in page layout
+- Progressive enhancement maintained — form works without HTMX (standard POST)
+- Matches Fenster's PageModel handler names: `EditForm`, `ViewContent`, `Edit`

@@ -124,3 +124,39 @@ _Append-only. Managed by Scribe. Agents write to `.squad/decisions/inbox/` — S
 - `closeEditModal()` sets container `innerHTML = ''` (consistent with `closeRecipeModal()` pattern)
 - "Edit Recipe" button gated with `@if (Model.Result?.IsOwner == true)`, styled `btn-warning`
 - Add Recipe modal (`_AddRecipeModal.cshtml`) extended with Ingredients, Instructions, PrepTime, CookTime, Servings fields
+
+---
+
+## Switch to Edit-in-Place Pattern for Recipe Editing
+**Date:** 2026-03-04  
+**Agents:** Fenster, Hockney  
+**Status:** Implemented
+
+### Decision
+Replaced the modal edit pattern with an edit-in-place pattern for recipe editing using HTMX `outerHTML` swapping.
+
+### Implementation
+
+**Backend Changes (Fenster):**
+- Renamed `OnGetEditModalAsync()` → `OnGetEditFormAsync()` in Details.cshtml.cs
+- Added `OnGetViewContentAsync()` for cancel flow
+- Both handlers return partials targeting `#recipe-content` div
+- `OnPostEditAsync()` sets `HX-Redirect` header for slug-change navigation
+
+**Frontend Changes (Hockney):**
+- Updated Details.cshtml to use `<partial name="_RecipeViewContent" />`
+- Created `_RecipeViewContent.cshtml` — recipe display with `<div id="recipe-content">`
+- Created `_RecipeEditForm.cshtml` — inline edit form with `<div id="recipe-content">`
+- Deleted `_EditRecipeModal.cshtml`
+
+### HTMX Architecture
+1. **View → Edit:** Edit button `hx-get="?handler=EditForm"` with `hx-target="#recipe-content"` and `hx-swap="outerHTML"`
+2. **Edit → View:** Cancel button `hx-get="?handler=ViewContent"` with same target/swap
+3. **Save:** Form posts to `?handler=Edit`, server sets `HX-Redirect` header
+
+### Key Details
+- Both partials use `<div id="recipe-content">` as outermost element for `outerHTML` swap
+- No `@page` directive in partials
+- Edit form uses Bootstrap card styling (no modal)
+- Antiforgery token included in form
+- Progressive enhancement maintained

@@ -44,13 +44,22 @@ public class DetailsModel : PageModel
         return Page();
     }
 
-    public async Task<IActionResult> OnGetEditModalAsync()
+    public async Task<IActionResult> OnGetEditFormAsync()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         Result = await _mediator.Send(new GetRecipeQuery(PublicId, userId));
         if (Result is null || !Result.IsOwner)
             return NotFound();
-        return Partial("_EditRecipeModal", Result);
+        return Partial("_RecipeEditForm", Result);
+    }
+
+    public async Task<IActionResult> OnGetViewContentAsync()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        Result = await _mediator.Send(new GetRecipeQuery(PublicId, userId));
+        if (Result is null)
+            return NotFound();
+        return Partial("_RecipeViewContent", Result);
     }
 
     public async Task<IActionResult> OnPostEditAsync()
