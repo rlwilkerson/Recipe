@@ -185,6 +185,21 @@ Generate and deploy containerized environment:
 
 The Docker Compose environment is registered in `AppHost.cs` via `builder.AddDockerComposeEnvironment("compose")` and uses `Aspire.Hosting.Docker` v13.1.2-preview.1.26125.13.
 
+### Environment Variables (`.env` file)
+
+The `.env` file is generated alongside `docker-compose.yml` and must be configured before running containers:
+
+| Variable | Purpose | Recommended Value |
+|----------|---------|-------------------|
+| `POSTGRES_PASSWORD` | PostgreSQL admin password | Generate with `openssl rand -base64 32`; **never use a simple password in production** |
+| `MIGRATIONS_IMAGE` | Docker image tag for migration service | `recipe-migrations:latest` or your registry path |
+| `RECIPE_WEB_IMAGE` | Docker image tag for web app | `recipe-web:latest` or your registry path |
+| `RECIPE_WEB_PORT` | HTTP port container listens on | `8080` (or another available port) |
+
+**Note:** `RECIPE_WEB_PORT` maps to Docker's `expose` directive, not `ports`. To access the app externally, either:
+- Configure a reverse proxy (nginx, Traefik) to route to port `RECIPE_WEB_PORT`, or
+- Add a manual `ports` mapping in `docker-compose.yml` (e.g., `"8080:8080"`)
+
 ## Common Development Tasks
 
 ### Add a New Feature (Handler + Tests)
