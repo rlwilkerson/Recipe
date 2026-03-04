@@ -11,4 +11,6 @@ builder.AddProject<Projects.Recipe_Web>("recipe-web")
     .WithReference(postgres)
     .WaitForCompletion(migrations);
 
+builder.AddDockerComposeEnvironment("compose");
+
 builder.Build().Run();
