@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="Recipe.AppHost/Recipe.AppHost.csproj" />
+  <Project Path="Recipe.MigrationService/Recipe.MigrationService.csproj" />
   <Project Path="Recipe.ServiceDefaults/Recipe.ServiceDefaults.csproj" />
   <Project Path="Recipe.Tests.Playwright/Recipe.Tests.Playwright.csproj" />
   <Project Path="Recipe.Tests/Recipe.Tests.csproj" />
