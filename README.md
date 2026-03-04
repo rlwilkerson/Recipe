@@ -177,7 +177,17 @@ Generate and deploy containerized environment:
    - `docker-compose.yml` — wires PostgreSQL, migrations service, and web app
    - `aspire-manifest.json` — Aspire configuration manifest
 
-4. **Deploy:**
+4. **Build Container Images:**
+   The projects use the .NET SDK's built-in container publishing — no Dockerfile required. Docker Desktop must be running.
+   ```bash
+   # Run from the repo root
+   dotnet publish Recipe.MigrationService\Recipe.MigrationService.csproj --os linux --arch x64 -c Release /t:PublishContainer -p:ContainerImageName=recipe-migrations -p:ContainerImageTag=latest
+
+   dotnet publish Recipe.Web\Recipe.Web.csproj --os linux --arch x64 -c Release /t:PublishContainer -p:ContainerImageName=recipe-web -p:ContainerImageTag=latest
+   ```
+   > **Note:** The `--os linux --arch x64` flags are required when building on Windows to produce Linux images compatible with Docker Compose.
+
+5. **Deploy:**
    ```bash
    cd ../publish/docker-compose
    docker compose up
