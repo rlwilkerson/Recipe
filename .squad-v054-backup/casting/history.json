@@ -1,0 +1,11 @@
+{
+  "assignments": [
+    {
+      "assignment_id": "cookbook-app-2026-03-03",
+      "universe": "The Usual Suspects",
+      "created_at": "2026-03-03T04:12:52Z",
+      "project": "Cookbook Web Application",
+      "agents": ["Keaton", "Fenster", "Hockney", "McManus"]
+    }
+  ]
+}

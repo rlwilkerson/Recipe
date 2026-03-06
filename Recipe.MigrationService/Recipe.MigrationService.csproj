@@ -17,4 +17,13 @@
     <ProjectReference Include="..\Recipe.Web\Recipe.Web.csproj" />
     <ProjectReference Include="..\Recipe.ServiceDefaults\Recipe.ServiceDefaults.csproj" />
   </ItemGroup>
+
+  <Target Name="RemoveConflictingWebFiles" AfterTargets="ComputeFilesToPublish">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
+        Condition="$([System.String]::Copy('%(Identity)').Contains('Recipe.Web')) AND
+                   ('%(RelativePath)' == 'appsettings.json' OR '%(RelativePath)' == 'appsettings.Development.json')" />
+    </ItemGroup>
+  </Target>
+
 </Project>
