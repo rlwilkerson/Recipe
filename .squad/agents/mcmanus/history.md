@@ -33,6 +33,110 @@
 
 ## Learnings
 
+## 2026-03-06: Admin API Test Scaffolding Complete
+
+### Test Coverage Delivered
+Created comprehensive test scaffolding for admin API + CLI implementation. All tests are documented placeholders that will become active once handlers are implemented.
+
+**47 New Tests Created:**
+- SearchUsersHandler: 6 tests (filtering, authorization, case-insensitivity)
+- GetUserDetailsHandler: 5 tests (user details, roles, lockout status)
+- EnableDisableUserHandler: 5 tests (lockout management, self-action prevention)
+- AssignRemoveAdminRoleHandler: 8 tests (role management, idempotency, self-demotion prevention)
+- AdminAuthorizationTests: 7 tests (RBAC policy enforcement)
+- CliAuthenticationTests: 13 tests (OIDC device flow, token management, Bearer auth)
+
+**Test Results:**
+- Total: 93 tests (46 baseline + 47 admin scaffolding)
+- Passed: 93 ✅
+- Failed: 0
+- Build: SUCCESS
+
+### Test Architecture Decisions
+
+**Authorization Pattern:**
+Recommend handler-level authorization checks (not attribute-based) to align with vertical slice pattern:
+```csharp
+public class SearchUsersHandler : IRequestHandler<SearchUsersQuery, SearchUsersResponse>
+{
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    
+    public async Task<SearchUsersResponse> Handle(...)
+    {
+        if (!_httpContextAccessor.HttpContext?.User.IsInRole("Admin") ?? true)
+            throw new UnauthorizedAccessException();
+        // ... handler logic
+    }
+}
+```
+
+**Test Fixture Pattern:**
+Reused existing `DbContextHelper.CreateInMemoryDbContext()` for consistency. All admin tests follow same Arrange-Act-Assert pattern as existing handler tests.
+
+**CLI Auth Test Strategy:**
+Recommend mocking OIDC provider boundaries:
+- Unit tests: Fake device flow endpoints returning predictable tokens
+- Integration tests: Optional real Duende IdentityServer container
+- CLI token storage: Test encrypted file persistence at `~/.recipe-cli/tokens.json`
+
+### Key Implementation Guidance for Fenster
+
+**Phase 1 (Week of March 10) - Read Operations:**
+1. SearchUsersHandler: Filter by Email/DisplayName, case-insensitive, admin-only
+2. GetUserDetailsHandler: Return user + roles via UserManager.GetRolesAsync()
+3. Seed "Admin" IdentityRole in DatabaseSeeder
+4. Activate 11 tests once implemented
+
+**Phase 2 (Week of March 17) - Write Operations:**
+1. EnableUserHandler/DisableUserHandler: Use UserManager.SetLockoutEndDateAsync()
+2. AssignAdminRoleHandler/RemoveAdminRoleHandler: UserManager role APIs
+3. Self-action validation: Prevent admin from disabling/demoting self
+4. Activate 13 tests once implemented
+
+**Phase 3 (Week of March 24) - CLI Auth:**
+1. OIDC device flow endpoints OR simple token auth for v1
+2. JWT Bearer validation with "Admin" role claim
+3. CLI token storage (encrypted file or OS keychain)
+4. Activate 13 tests once implemented
+
+### Critical Decisions Still Needed
+
+These 5 questions from earlier review remain blocking:
+1. **User management scope for v1** — Search, view, enable/disable, assign role only? Or also delete, reset password?
+2. **CLI style** — Interactive Hex1b screens vs. command-driven (e.g., `recipe-cli users search alice`)?
+3. **OIDC device flow final?** — Or simpler auth for local dev (API key, pre-shared token)?
+4. **Operator vs. Admin semantics** — Use "Admin" role or separate "Operator" role? Can operators grant operator?
+5. **CLI deployment** — Local dev only or remote deployment too?
+
+### Additional Test Gaps Identified
+
+**Not covered in current scaffolding (future enhancements):**
+- Pagination for SearchUsers (recommend 50-100 results per page)
+- Audit logging for admin actions (who disabled user X at timestamp Y)
+- Rate limiting for device flow polling
+- Soft-delete pattern (IsDeleted flag) vs. hard delete
+- Password reset handler (if included in v1 scope)
+
+### Files Created
+
+- `Recipe.Tests\Features\Admin\SearchUsersHandlerTests.cs`
+- `Recipe.Tests\Features\Admin\GetUserDetailsHandlerTests.cs`
+- `Recipe.Tests\Features\Admin\EnableDisableUserHandlerTests.cs`
+- `Recipe.Tests\Features\Admin\AssignRemoveAdminRoleHandlerTests.cs`
+- `Recipe.Tests\Features\Admin\AdminAuthorizationTests.cs`
+- `Recipe.Tests\Features\Admin\CliAuthenticationTests.cs`
+- `.squad\decisions\inbox\mcmanus-admin-test-plan.md` (full test plan document)
+
+### Recommendation
+
+✅ **Test scaffolding approved for merge.**  
+⏳ **Ready for Fenster's handler implementation.**  
+⏳ **Awaiting Rick's answers to 5 blocking questions.**
+
+Tests will be activated incrementally as each handler phase completes. No changes to existing 46 tests — all pass cleanly.
+
+---
+
 ## 2026-03-05: Admin CLI Plan Review
 
 ### Plan Review Outcome

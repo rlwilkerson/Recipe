@@ -168,3 +168,63 @@ Built Recipe.Web project to temp directory to avoid Aspire file locks. Build suc
 - Flagged 5 infrastructure gaps: Identity/RBAC, auth strategy, admin user seeding, Share model, API design
 - Provided detailed recommendations in orchestration log
 
+---
+
+## 2025-01-26: Admin Platform v1 Implementation (COMPLETE)
+
+**Mission:** Implement v1 admin platform (AdminApi + AdminCli) end-to-end.
+
+### Deliverables Completed
+
+#### Recipe.AdminApi
+- ✅ Minimal API with 4 vertical slices (SearchUsers, GetUserDetails, SetUserAccess, SetAdminRole)
+- ✅ MediatR handlers for CQRS pattern
+- ✅ JWT Bearer authentication (OIDC-ready)
+- ✅ Admin-only authorization policy
+- ✅ Integrated with Aspire AppHost
+
+#### Recipe.AdminCli
+- ✅ System.CommandLine-based CLI
+- ✅ OIDC device flow auth service
+- ✅ Dual token storage (Windows Registry + file fallback)
+- ✅ 7 commands (login, logout, search, details, enable, disable, assign-admin, remove-admin)
+
+#### Integration
+- ✅ Admin role + admin user seeded in DatabaseSeeder
+- ✅ RoleManager registered in MigrationService
+- ✅ AdminApi registered in AppHost
+- ✅ 3 test suites (55 total tests passing)
+
+#### Documentation
+- ✅ README updated with admin platform section
+- ✅ Decision document created in `.squad/decisions/inbox/`
+- ✅ This history file updated
+
+### Key Technical Wins
+
+1. **Thin Client Architecture** — All business logic in AdminApi; CLI is pure presentation
+2. **OS-Level Security** — Windows Registry + DPAPI for production token storage
+3. **Vertical Slice Consistency** — AdminApi matches Recipe.Web patterns exactly
+4. **Test Coverage** — All handlers unit tested with NSubstitute mocks
+
+### Challenges Resolved
+
+- Aspire project references require `<ProjectReference>` in AppHost.csproj
+- System.CommandLine handlers must return `void`/`Task`, not `int`
+- RoleManager needs explicit `.AddRoles<IdentityRole>()` registration
+- File locks during build resolved by stopping AppHost process
+
+### Production Readiness Gaps
+
+- OIDC provider configuration pending (Authority, Audience, Client registration)
+- Audit logging not implemented
+- Cross-platform token storage (macOS/Linux) not implemented
+- CLI packaging/distribution strategy not finalized
+
+### Files Changed
+- **New:** `Recipe.AdminApi/`, `Recipe.AdminCli/`
+- **Modified:** `Recipe.slnx`, `Recipe.AppHost/`, `Recipe.MigrationService/`, `Recipe.Tests/`, `README.md`
+- **Created:** `.squad/decisions/inbox/fenster-admin-impl.md`
+
+**Status:** ✅ All deliverables met. Ready for OIDC integration phase.
+
