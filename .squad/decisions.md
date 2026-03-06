@@ -301,3 +301,179 @@ Using direct emoji characters for visual clarity without icon library dependency
 
 ### Accessibility Note
 Emoji used here are decorative (not semantic). Screen readers will read the text ("10 min prep") which is sufficient context.
+
+---
+
+## Clone Recipe: Preserve Cookbook Membership
+**Date:** 2026-03-04  
+**Agent:** Fenster  
+**Status:** Implemented
+
+### Problem
+When cloning a recipe, the new recipe was created successfully but was not added to any cookbooks. This left cloned recipes orphaned and inaccessible through cookbook navigation.
+
+**Root Cause:** The `OnPostSaveCloneAsync` handler called `CreateRecipeCommand` to create the new recipe but did not call `AddRecipeToCookbookCommand` to preserve cookbook membership.
+
+### Decision
+Extended the recipe cloning flow to preserve cookbook membership by:
+1. **Adding cookbook tracking to GetRecipeResponse** — Extended response with `IReadOnlyList<string> CookbookPublicIds`
+2. **Fetching original recipe before cloning** — Modified `OnPostSaveCloneAsync` to first fetch original recipe
+3. **Adding clone to original's cookbooks** — Loop through cookbooks and add clone using `AddRecipeToCookbookCommand`
+
+### Implementation
+**Files Modified:**
+- `Recipe.Web/Features/Recipes/GetRecipe/GetRecipeResponse.cs` — Added `CookbookPublicIds` field
+- `Recipe.Web/Features/Recipes/GetRecipe/GetRecipeHandler.cs` — Updated projection to include cookbook IDs
+- `Recipe.Web/Pages/Recipes/Details.cshtml.cs` — Modified `OnPostSaveCloneAsync` to preserve cookbook membership
+
+### Trade-offs
+**Pros:** Reuses existing commands, minimal changes to contracts, cookbook membership automatically preserved  
+**Cons:** Requires extra DB query for original recipe, multiple sequential commands instead of atomic operation
+
+### Verification
+- ✅ Build succeeded with 0 errors
+- ✅ Confirmed only one place constructs GetRecipeResponse
+- ✅ Pattern follows established vertical slice architecture
+
+---
+
+## Docker Compose Publish Environment
+**Date:** 2026-03-04  
+**Agent:** Keaton  
+**Status:** Implemented
+
+### Decision
+Added Docker Compose publish support to the Aspire AppHost to enable containerized deployment of the Recipe application.
+
+### Implementation
+**Package:** Aspire.Hosting.Docker v13.1.2-preview.1.26125.13  
+**File:** Recipe.AppHost/AppHost.cs
+
+Added Docker Compose environment registration as final statement before `builder.Build().Run()`:
+```csharp
+builder.AddDockerComposeEnvironment("compose");
+```
+
+**Infrastructure Updates:**
+- Added `/publish/` to `.gitignore` for generated Docker Compose artifacts
+
+### Build & Test Results
+✅ Build succeeded with 0 errors  
+⚠️ Publish test: Partial success — generated `aspire-manifest.json` successfully
+
+### Usage
+```bash
+# From Recipe.AppHost directory
+dotnet run --publisher docker-compose --output-path ../publish/docker-compose
+# Or using Aspire CLI
+aspire publish -o ../publish/docker-compose
+```
+
+### Generated Artifacts
+On successful publish, the following are created in `publish/docker-compose/`:
+- `aspire-manifest.json` — Aspire deployment manifest
+- `docker-compose.yaml` — Docker Compose orchestration file
+- Additional Docker-related configuration files
+
+---
+
+## Admin CLI Plan Review — Team Consensus
+**Date:** 2026-03-05 to 2026-03-06  
+**Reviewers:** Keaton (Architecture), Fenster (Backend), Hockney (Frontend/UX), McManus (Testing)  
+**Status:** ✅ Approved Architecture — ⏳ Implementation Blocked on Clarifications
+
+### Consensus Outcome
+All four reviewers affirm the thin CLI + dedicated admin API separation is **architecturally sound** and aligns with existing vertical-slice patterns.
+
+### Architecture Approval
+✅ **Approved Components:**
+- Lean CLI principle (presentation/orchestration only)
+- Dedicated admin API with MediatR handlers
+- Vertical slice reuse from Recipe.Web
+- Aspire integration for orchestration
+- Hybrid UX (command entry + interactive Hex1b screens)
+
+### Implementation Blocked On
+Rick must clarify **6 critical blocking questions** before Phase 1 implementation begins:
+
+1. **Auth Strategy** — Choose primary for v1:
+   - OIDC device flow (recommended, but complex)
+   - Browser-based OIDC + PKCE (simpler)
+   - Scoped token + env-based auth (dev-only fallback)
+
+2. **First-Phase Scope** — Define v1 user-management actions:
+   - Required minimum: Search, View, Enable/Disable, Role Assignment
+   - Out of v1: Audit logs, advanced RBAC, provisioning
+
+3. **Admin Identity Model** — Choose approach:
+   - Regular ApplicationUser with AdminUser role (recommended)
+   - Separate admin identity store
+
+4. **Application Layer Sharing** — Path A vs. Path B:
+   - **Path A (Recommended):** Admin API references Recipe.Web
+   - **Path B:** Extract Recipe.ApplicationCore early
+
+5. **Operator Permission Semantics** — Clarify:
+   - Role naming ("Operator" vs. "Admin")
+   - Can modify only user-management or also content?
+   - Operator hierarchy (can one grant another)?
+
+6. **CLI Deployment Model** — Local vs. remote:
+   - v1: Local dev via `dotnet run`
+   - v1: Also Docker container in Aspire?
+   - Deferred: NuGet tool packaging
+
+### Design-Phase Clarifications (Post-Leadership Decision)
+- Hybrid command/interactive balance (3–4 operator workflows)
+- Session & token persistence strategy
+- Error handling & feedback patterns
+- Test coverage by layer
+
+### Critical Gaps Identified
+
+**By Fenster (Backend):**
+- Identity & RBAC not defined
+- Auth strategy unclear
+- Admin user seeding missing
+- Share model incompatible with admin ops
+- Admin API design undefined
+
+**By Hockney (Frontend/UX):**
+- Hybrid model not concretely defined
+- Session persistence undefined
+- Error messages & feedback loop unspecified
+- Progressive rollout strategy vague
+- Confirmation & safety for destructive ops not addressed
+- User-management workflows not detailed
+
+**By McManus (Testing):**
+- OIDC device flow testing not designed
+- Admin API authorization logic not specified
+- CLI token storage not tested
+- Hex1b integration testing vague
+- Admin API endpoint testing unclear
+- Operator permissions vs. cookbook ownership undefined
+- Aspire integration testing undefined
+
+### Recommended Workflow
+
+**Immediate (This Week):**
+1. Rick reviews all four orchestration logs
+2. Rick clarifies 6 blocking questions
+3. Keaton consolidates feedback into decision document
+4. Fenster sketches admin API contract
+5. Ralph/Fenster adds placeholder Recipe.AdminApi to AppHost
+
+**Phase 1 (Week of March 10):**
+1. Fenster: Identity + RBAC foundation
+2. Hockney: CLI interaction flows
+3. McManus: Test cases for authorization + handlers
+
+**Phase 2 (Week of March 17):**
+1. Fenster: Admin API with handlers
+2. Ralph/Hockney: Recipe.AdminCli with Hex1b
+3. McManus: Validate test coverage
+
+**Phase 3 (Week of March 24):**
+1. Polish, documentation, operator guide
+2. Staged rollout to core team

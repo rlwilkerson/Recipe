@@ -33,6 +33,39 @@
 
 ## Learnings
 
+## 2026-03-05: Admin CLI Plan Review
+
+### Plan Review Outcome
+Reviewed Rick's strategic CLI implementation plan from a test/QA perspective. Plan is architecturally sound — separation of thin CLI (TUI presentation) from Admin API (business logic via handlers) is excellent for testability and reuses the proven vertical slice + MediatR pattern.
+
+### Critical Test Gaps Identified
+1. **OIDC Device Flow** — Plan recommends it but provides no test strategy. Needs decision on mock vs. real OIDC provider for CI.
+2. **Operator Permission Model** — Undefined. Will operators use Share entity or separate permission model? Must define RBAC matrix before coding.
+3. **Admin API Authorization** — Business logic for what operators can do not specified. Blocks RBAC test design.
+4. **CLI Token Storage** — No mention of where tokens are stored, how refresh works, or security tests.
+5. **Hex1b Integration** — TUI library testing approach vague. Recommendation: test business logic handlers, mock UI layer.
+
+### Test Infrastructure Planning
+Recommended Tier 1 test coverage:
+- Admin API authorization tests (RBAC matrix via xUnit theory data)
+- User management handlers (SearchUsers, GetUserDetails, ChangeRole, DisableUser)
+- Admin API endpoint contract tests (input validation, response shape)
+- CLI authentication tests (if device flow chosen)
+
+Noted that existing test pattern (xUnit + in-memory EF Core + NSubstitute) scales well to admin API. No new testing framework needed, but will need `Recipe.Tests.AdminApi` project and token/OIDC test fixtures.
+
+### Key Decisions Needed (Blocking)
+1. What specific user-management actions in v1? (search, view, change role, disable, delete, reset password?)
+2. CLI style: Interactive Hex1b screens, command-driven, or hybrid?
+3. OIDC device flow final, or still evaluating simpler auth for local dev?
+4. Operator vs. Admin semantics? Can operators grant other operators?
+5. CLI deployment: Local dev only, remote deployment, or both?
+
+### Recommendation
+Approved for implementation with clarifications. Answers to the 5 blocking questions + operator permission model design required before coding starts.
+
+---
+
 ## 2026-03-02: Comprehensive Unit Test Implementation
 
 ### Test Coverage Completed
