@@ -9,18 +9,20 @@ namespace Recipe.MigrationService;
 public class DatabaseSeeder(
     AppDbContext db,
     UserManager<ApplicationUser> userManager,
+    RoleManager<IdentityRole> roleManager,
     ISlugService slugService,
     IPublicIdService publicIdService,
     ILogger<DatabaseSeeder> logger)
 {
     private const int BogusFixedSeed = 42;
 
-    // Seed users: email, password, display name
-    private static readonly (string Email, string Password, string DisplayName)[] SeedUsers =
+    // Seed users: email, password, display name, isAdmin
+    private static readonly (string Email, string Password, string DisplayName, bool IsAdmin)[] SeedUsers =
     [
-        ("testuser@cookbook.test", "Test@12345!", "Test User"),
-        ("alice@recipe.test",      "Seed@12345!", "Alice Baker"),
-        ("bob@recipe.test",        "Seed@12345!", "Bob Cook"),
+        ("admin@recipe.test",      "Admin@12345!", "Admin User", true),
+        ("testuser@cookbook.test", "Test@12345!", "Test User", false),
+        ("alice@recipe.test",      "Seed@12345!", "Alice Baker", false),
+        ("bob@recipe.test",        "Seed@12345!", "Bob Cook", false),
     ];
 
     public async Task SeedAsync(CancellationToken cancellationToken = default)
@@ -35,10 +37,17 @@ public class DatabaseSeeder(
 
         logger.LogInformation("Seeding database...");
 
+        // Ensure Admin role exists
+        if (!await roleManager.RoleExistsAsync("Admin"))
+        {
+            await roleManager.CreateAsync(new IdentityRole("Admin"));
+            logger.LogInformation("Created Admin role");
+        }
+
         var faker = new Faker { Random = new Randomizer(BogusFixedSeed) };
 
         var createdUsers = new List<ApplicationUser>();
-        foreach (var (email, password, displayName) in SeedUsers)
+        foreach (var (email, password, displayName, isAdmin) in SeedUsers)
         {
             var user = new ApplicationUser
             {
@@ -54,8 +63,19 @@ public class DatabaseSeeder(
                     string.Join(", ", result.Errors.Select(e => e.Description)));
                 continue;
             }
+
+            // Assign admin role if needed
+            if (isAdmin)
+            {
+                await userManager.AddToRoleAsync(user, "Admin");
+                logger.LogInformation("Created admin user {Email}", email);
+            }
+            else
+            {
+                logger.LogInformation("Created user {Email}", email);
+            }
+
             createdUsers.Add(user);
-            logger.LogInformation("Created user {Email}", email);
         }
 
         if (createdUsers.Count == 0)
@@ -88,7 +108,10 @@ public class DatabaseSeeder(
         var cookbookIndex = 0;
         var allCookbooks = new List<(ApplicationUser Owner, Cookbook Cookbook)>();
 
-        foreach (var user in createdUsers)
+        // Only seed cookbooks for non-admin users
+        var regularUsers = createdUsers.Where(u => !SeedUsers.Any(s => s.Email == u.Email && s.IsAdmin)).ToList();
+
+        foreach (var user in regularUsers)
         {
             for (int c = 0; c < 2; c++)
             {

@@ -12,6 +12,7 @@ builder.AddNpgsqlDbContext<AppDbContext>("RecipeDb", configureDbContextOptions: 
     options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 builder.Services.AddIdentityCore<ApplicationUser>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
 builder.Services.AddScoped<ISlugService, SlugService>();

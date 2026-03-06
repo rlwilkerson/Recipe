@@ -1,4 +1,6 @@
 <Solution>
+  <Project Path="Recipe.AdminApi/Recipe.AdminApi.csproj" />
+  <Project Path="Recipe.AdminCli/Recipe.AdminCli.csproj" />
   <Project Path="Recipe.AppHost/Recipe.AppHost.csproj" />
   <Project Path="Recipe.MigrationService/Recipe.MigrationService.csproj" />
   <Project Path="Recipe.ServiceDefaults/Recipe.ServiceDefaults.csproj" />

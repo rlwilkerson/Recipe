@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Recipe.Web\Recipe.Web.csproj" />
+    <ProjectReference Include="..\Recipe.AdminApi\Recipe.AdminApi.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -17,8 +17,10 @@ A modern web application for managing recipes and cookbooks. Built with ASP.NET 
 
 | Project | Purpose |
 |---------|---------|
-| **Recipe.AppHost** | .NET Aspire orchestration host; registers resources (PostgreSQL, Recipe.Web) |
+| **Recipe.AppHost** | .NET Aspire orchestration host; registers resources (PostgreSQL, Recipe.Web, Recipe.AdminApi) |
 | **Recipe.Web** | ASP.NET Core Razor Pages web app; main application code |
+| **Recipe.AdminApi** | ASP.NET Core Minimal API; admin operations for user management |
+| **Recipe.AdminCli** | Console-based CLI tool; admin operator interface to AdminApi |
 | **Recipe.MigrationService** | EF Core migrations + seed data worker; runs on app startup |
 | **Recipe.ServiceDefaults** | Shared Aspire service defaults (resilience, health checks, tracing) |
 | **Recipe.Tests** | xUnit unit tests (handlers, services) with in-memory EF Core |
@@ -66,11 +68,12 @@ A modern web application for managing recipes and cookbooks. Built with ASP.NET 
 
 ## Seed Users
 
-| Email | Password | Notes |
-|-------|----------|-------|
-| `testuser@cookbook.test` | `Test@12345!` | Playwright test user |
-| `alice@recipe.test` | `Seed@12345!` | Seed user with sample cookbooks |
-| `bob@recipe.test` | `Seed@12345!` | Seed user |
+| Email | Password | Role | Notes |
+|-------|----------|------|-------|
+| `admin@recipe.test` | `Admin@12345!` | Admin | Admin user for CLI operations |
+| `testuser@cookbook.test` | `Test@12345!` | User | Playwright test user |
+| `alice@recipe.test` | `Seed@12345!` | User | Seed user with sample cookbooks |
+| `bob@recipe.test` | `Seed@12345!` | User | Seed user |
 
 All seed data uses `Bogus` with fixed seed (42) for reproducible test scenarios.
 
@@ -241,6 +244,60 @@ The `.env` file is generated alongside `docker-compose.yml` and must be configur
 **Tests fail:**
 - Unit tests: run `dotnet test Recipe.Tests`
 - E2E tests: ensure app is running (`aspire run` in separate terminal)
+
+## Admin Platform
+
+The admin platform provides user management capabilities via a dedicated API and CLI tool.
+
+### Recipe.AdminApi
+
+A minimal ASP.NET Core API for administrative operations:
+
+- **Endpoints:** `/api/users/search`, `/api/users/{userId}`, `/api/users/{userId}/access`, `/api/users/{userId}/admin-role`
+- **Authentication:** JWT Bearer tokens (OIDC device flow)
+- **Authorization:** All endpoints require `Admin` role
+- **Architecture:** Vertical slice pattern with MediatR handlers
+
+The AdminApi runs alongside Recipe.Web when you start the AppHost via `aspire run`.
+
+### Recipe.AdminCli
+
+A console-based CLI tool for admin operators:
+
+**Commands:**
+```bash
+# Authenticate
+dotnet run --project Recipe.AdminCli login
+
+# Search users
+dotnet run --project Recipe.AdminCli user search --term alice
+
+# View user details
+dotnet run --project Recipe.AdminCli user details <userId>
+
+# Enable/disable user access
+dotnet run --project Recipe.AdminCli user enable <userId>
+dotnet run --project Recipe.AdminCli user disable <userId>
+
+# Manage admin role
+dotnet run --project Recipe.AdminCli user assign-admin <userId>
+dotnet run --project Recipe.AdminCli user remove-admin <userId>
+
+# Logout
+dotnet run --project Recipe.AdminCli logout
+```
+
+**Token Storage:**
+- **Production:** Uses OS credential store (Windows Registry with DPAPI)
+- **Development:** Falls back to file-based storage in `%LOCALAPPDATA%\RecipeAdminCli\token.txt`
+
+**Configuration:**
+Edit `Recipe.AdminCli/Program.cs` to set:
+- `ApiBaseUrl` — AdminApi endpoint (default: `http://localhost:5001`)
+- `OidcAuthority` — OIDC provider URL
+- `OidcClientId` — Client ID for device flow
+
+**Note:** Full OIDC integration requires configuring an identity provider. For local development, the API currently has placeholder auth settings in `appsettings.Development.json`.
 
 ## Project Context
 
